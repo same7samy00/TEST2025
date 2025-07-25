@@ -99,48 +99,79 @@
             margin-right: 250px; /* لإفساح المجال للشريط الجانبي */
             flex-grow: 1;
             padding: 40px;
-            padding-top: 60px; /* لترك مساحة كافية للعنوان */
             box-sizing: border-box;
             width: calc(100% - 250px); /* يضمن المحتوى يأخذ العرض المتبقي */
+            min-height: 100vh; /* لضمان ارتفاع المحتوى */
+            position: relative; /* لتحديد موقع عناصر التحميل */
         }
 
-        /* أقسام المحتوى (لوحة التحكم، إدارة المنتجات، إلخ) */
-        .content-section {
-            display: none; /* إخفاء جميع الأقسام مبدئياً */
-            animation: fadeIn 0.5s ease-out forwards;
-        }
-        .content-section.active {
-            display: block; /* إظهار القسم النشط فقط */
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        #content-area {
+            min-height: 600px; /* ارتفاع افتراضي للمحتوى */
+            display: flex;
+            flex-direction: column; /* لترتيب المحتوى عمودياً */
+            /* justify-content: center; */ /* تم إزالته لتجنب مركزة المحتوى الرأسي */
+            /* align-items: center; */ /* تم إزالته لتجنب مركزة المحتوى الأفقي */
         }
 
-        header {
+        /* رسالة التحميل */
+        #loading-indicator {
+            display: none; /* مخفية مبدئياً */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            font-size: 20px;
+            color: var(--primary-color);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #loading-indicator .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* الأنماط العامة للعناوين والأقسام داخل أي صفحة محملة */
+        .page-header {
             margin-bottom: 50px;
             text-align: right;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 20px;
         }
 
-        header h1 {
+        .page-header h1 {
             font-size: 42px;
             color: var(--primary-color);
             margin-bottom: 10px;
             font-weight: 700;
         }
 
-        header p {
+        .page-header p {
             font-size: 19px;
             color: var(--light-text);
             line-height: 1.6;
         }
 
+        /* الأنماط الخاصة بالبطاقات (overview cards) - إذا كانت موجودة في صفحات فرعية */
         .overview-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* 4 أعمدة على الشاشات الكبيرة */
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 30px;
             margin-bottom: 50px;
         }
@@ -152,7 +183,7 @@
             box-shadow: 0 5px 15px var(--shadow-light);
             text-align: right;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border-top: 5px solid var(--primary-color); /* شريط لوني في الأعلى */
+            border-top: 5px solid var(--primary-color);
         }
 
         .card:hover {
@@ -173,147 +204,10 @@
             font-weight: 700;
         }
 
-        .quick-actions {
-            margin-bottom: 50px;
-        }
-
-        .quick-actions h2, .products-management h2, .recent-activity h2 { /* أضفنا products-management h2 هنا */
-            font-size: 32px;
-            color: var(--text-color);
-            margin-bottom: 25px;
-            text-align: right;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 15px;
-        }
-
-        .actions-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 25px;
-        }
-
-        .action-btn {
-            font-family: 'Cairo', sans-serif;
-            background-color: #66bb6a; /* أخضر فاتح للزر */
-            color: white;
-            padding: 18px 25px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: 600;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-            box-shadow: 0 4px 10px var(--shadow-light);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .action-btn:hover {
-            background-color: #5cb85c;
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px var(--shadow-medium);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            overflow: hidden; /* للحفاظ على حدود الجدول المستديرة */
-            box-shadow: 0 5px 15px var(--shadow-light);
-            margin-top: 30px; /* مسافة فوق الجدول في قسم المنتجات */
-        }
-
-        table th, table td {
-            padding: 18px;
-            text-align: right;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        table th {
-            background-color: #e8f5e9; /* لون أخضر فاتح جداً لرأس الجدول */
-            color: var(--secondary-color);
-            font-size: 17px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        table tr:last-child td {
-            border-bottom: none;
-        }
-
-        table tbody tr:hover {
-            background-color: #f0fdf0; /* لون خفيف عند التحويم على الصف */
-        }
-
-        /* تنسيق نموذج إدارة المنتجات */
-        .product-form-container {
-            background-color: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px var(--shadow-light);
-            margin-bottom: 40px;
-        }
-
-        .product-form-container h3 {
-            font-size: 28px;
-            color: var(--primary-color);
-            margin-bottom: 25px;
-            text-align: right;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-            text-align: right;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--light-text);
-            font-size: 17px;
-            font-weight: 600;
-        }
-
-        .form-group input[type="text"],
-        .form-group input[type="number"],
-        .form-group textarea,
-        .form-group select {
-            font-family: 'Cairo', sans-serif;
-            width: calc(100% - 24px); /* خصم البادينج */
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 16px;
-            box-sizing: border-box;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .form-group input[type="text"]:focus,
-        .form-group input[type="number"]:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            border-color: var(--primary-color);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
-        }
-
-        textarea {
-            resize: vertical; /* السماح بتغيير حجم مربع النص عمودياً */
-            min-height: 80px;
-        }
-
-        .form-actions {
-            display: flex;
-            justify-content: flex-end; /* الأزرار على اليسار (في RTL) */
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .form-actions button {
+        /* أنماط الأزرار العامة داخل المحتوى */
+        .main-content .action-btn,
+        .main-content .submit-btn,
+        .main-content .cancel-btn {
             font-family: 'Cairo', sans-serif;
             padding: 14px 25px;
             border: none;
@@ -323,32 +217,122 @@
             font-weight: 600;
             transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
             box-shadow: 0 3px 8px var(--shadow-light);
+            display: inline-flex; /* لجعلها تظهر بجانب بعضها البعض */
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        .form-actions .submit-btn {
+        .main-content .action-btn {
+            background-color: #66bb6a; /* أخضر فاتح */
+            color: white;
+            box-shadow: 0 4px 10px var(--shadow-light);
+        }
+
+        .main-content .action-btn:hover {
+            background-color: #5cb85c;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px var(--shadow-medium);
+        }
+
+        .main-content .submit-btn {
             background-color: var(--primary-color);
             color: white;
         }
 
-        .form-actions .submit-btn:hover {
+        .main-content .submit-btn:hover {
             background-color: #45a049;
             transform: translateY(-2px);
             box-shadow: 0 5px 12px var(--shadow-medium);
         }
 
-        .form-actions .cancel-btn {
+        .main-content .cancel-btn {
             background-color: #f0f0f0;
             color: var(--text-color);
         }
 
-        .form-actions .cancel-btn:hover {
+        .main-content .cancel-btn:hover {
             background-color: #e0e0e0;
             transform: translateY(-2px);
             box-shadow: 0 5px 12px var(--shadow-medium);
         }
 
-        /* أزرار الإجراءات داخل الجدول (تعديل/حذف) */
-        .action-buttons button {
+        /* أنماط الجداول العامة داخل المحتوى */
+        .main-content table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px var(--shadow-light);
+            margin-top: 30px;
+        }
+
+        .main-content table th, .main-content table td {
+            padding: 18px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .main-content table th {
+            background-color: #e8f5e9;
+            color: var(--secondary-color);
+            font-size: 17px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .main-content table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .main-content table tbody tr:hover {
+            background-color: #f0fdf0;
+        }
+
+        /* أنماط حقول النموذج العامة */
+        .main-content .form-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .main-content .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--light-text);
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .main-content .form-group input[type="text"],
+        .main-content .form-group input[type="number"],
+        .main-content .form-group textarea,
+        .main-content .form-group select {
+            font-family: 'Cairo', sans-serif;
+            width: calc(100% - 24px);
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .main-content .form-group input[type="text"]:focus,
+        .main-content .form-group input[type="number"]:focus,
+        .main-content .form-group textarea:focus,
+        .main-content .form-group select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+        }
+
+        .main-content textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .main-content .action-buttons button {
             font-family: 'Cairo', sans-serif;
             padding: 8px 15px;
             border: none;
@@ -360,34 +344,23 @@
             transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
-        .action-buttons .edit-btn {
+        .main-content .action-buttons .edit-btn {
             background-color: var(--info-color); /* لون أزرق للمعلومات/تعديل */
             color: white;
         }
-        .action-buttons .edit-btn:hover {
+        .main-content .action-buttons .edit-btn:hover {
             background-color: #1a6f7b;
             transform: translateY(-2px);
         }
 
-        .action-buttons .delete-btn {
+        .main-content .action-buttons .delete-btn {
             background-color: var(--danger-color); /* لون أحمر للحذف */
             color: white;
         }
-        .action-buttons .delete-btn:hover {
+        .main-content .action-buttons .delete-btn:hover {
             background-color: #b71c1c;
             transform: translateY(-2px);
         }
-
-
-        /* تخصيص الأيقونات (باستخدام Font Awesome) */
-        .fas.fa-chart-line::before { content: "\f009"; } /* Dashboard */
-        .fas.fa-boxes::before { content: "\f486"; } /* Products */
-        .fas.fa-shopping-cart::before { content: "\f53d"; } /* Sales */
-        .fas.fa-users::before { content: "\f0c0"; } /* Customers */
-        .fas.fa-chart-pie::before { content: "\f671"; } /* Reports */
-        .fas.fa-cogs::before { content: "\f013"; } /* Settings */
-        .fas.fa-sign-out-alt::before { content: "\f08b"; } /* Logout */
-
 
         /* تعديلات على الهاتف والشاشات الصغيرة */
         @media (max-width: 768px) {
@@ -435,11 +408,11 @@
                 font-size: 32px;
             }
 
-            header h1 {
+            .page-header h1 {
                 font-size: 32px;
             }
 
-            header p {
+            .page-header p {
                 font-size: 16px;
             }
 
@@ -447,7 +420,7 @@
                 grid-template-columns: 1fr; /* عمود واحد على الجوال */
             }
 
-            .quick-actions h2, .recent-activity h2, .products-management h2 {
+            .quick-actions h2, .products-management h2, .recent-activity h2 {
                 font-size: 26px;
             }
 
@@ -466,175 +439,30 @@
     <div class="sidebar">
         <div class="logo-text">شيخ العرب</div>
         <ul class="menu">
-            <li><a href="#dashboard" class="menu-item active" data-section="dashboard"><i class="fas fa-chart-line"></i> لوحة التحكم</a></li>
-            <li><a href="#products" class="menu-item" data-section="products"><i class="fas fa-boxes"></i> إدارة المنتجات</a></li>
-            <li><a href="#sales" class="menu-item" data-section="sales"><i class="fas fa-shopping-cart"></i> سجل المبيعات</a></li>
-            <li><a href="#customers" class="menu-item" data-section="customers"><i class="fas fa-users"></i> إدارة العملاء</a></li>
-            <li><a href="#reports" class="menu-item" data-section="reports"><i class="fas fa-chart-pie"></i> التقارير</a></li>
-            <li><a href="#settings" class="menu-item" data-section="settings"><i class="fas fa-cogs"></i> الإعدادات</a></li>
+            <li><a href="#" class="menu-item active" data-path="dashboard-overview.html"><i class="fas fa-chart-line"></i> لوحة التحكم</a></li>
+            <li><a href="#" class="menu-item" data-path="products.html"><i class="fas fa-boxes"></i> إدارة المنتجات</a></li>
+            <li><a href="#" class="menu-item" data-path="sales.html"><i class="fas fa-shopping-cart"></i> سجل المبيعات</a></li>
+            <li><a href="#" class="menu-item" data-path="customers.html"><i class="fas fa-users"></i> إدارة العملاء</a></li>
+            <li><a href="#" class="menu-item" data-path="reports.html"><i class="fas fa-chart-pie"></i> التقارير</a></li>
+            <li><a href="#" class="menu-item" data-path="settings.html"><i class="fas fa-cogs"></i> الإعدادات</a></li>
             <li><a href="#" id="logoutButton"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a></li>
         </ul>
     </div>
 
     <div class="main-content">
-        <section id="dashboard" class="content-section active">
-            <header>
-                <h1>مرحباً بك في لوحة تحكم شيخ العرب</h1>
-                <p>هنا يمكنك إدارة محل العطارة الخاص بك بكفاءة.</p>
-            </header>
-
-            <section class="overview-cards">
-                <div class="card">
-                    <h3>إجمالي المنتجات</h3>
-                    <p>150 منتج</p>
-                </div>
-                <div class="card">
-                    <h3>مبيعات اليوم</h3>
-                    <p>5,200 جنيه</p>
-                </div>
-                <div class="card">
-                    <h3>منتجات على وشك النفاذ</h3>
-                    <p>12 منتج</p>
-                </div>
-                <div class="card">
-                    <h3>عملاء جدد</h3>
-                    <p>5 عملاء</p>
-                </div>
-            </section>
-
-            <section class="quick-actions">
-                <h2>إجراءات سريعة</h2>
-                <div class="actions-grid">
-                    <button class="action-btn">إضافة منتج جديد</button>
-                    <button class="action-btn">تسجيل بيع</button>
-                    <button class="action-btn">عرض المنتجات</button>
-                    <button class="action-btn">عرض المبيعات</button>
-                </div>
-            </section>
-
-            <section class="recent-activity">
-                <h2>الأنشطة الأخيرة</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>النوع</th>
-                            <th>التفاصيل</th>
-                            <th>التاريخ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>إضافة منتج</td>
-                            <td>تمت إضافة "زيت اللوز الحلو"</td>
-                            <td>25 يوليو 2025</td>
-                        </tr>
-                        <tr>
-                            <td>بيع</td>
-                            <td>فاتورة #123456 بقيمة 350 جنيه</td>
-                            <td>25 يوليو 2025</td>
-                        </tr>
-                        <tr>
-                            <td>تعديل مخزون</td>
-                            <td>تحديث كمية "عشب الروزماري"</td>
-                            <td>24 يوليو 2025</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
-        </section>
-
-        <section id="products" class="content-section">
-            <header>
-                <h1>إدارة المنتجات</h1>
-                <p>أضف، عدّل، أو احذف المنتجات من مخزون محل شيخ العرب.</p>
-            </header>
-
-            <div class="product-form-container">
-                <h3>أضف / عدّل منتج</h3>
-                <form id="productForm">
-                    <input type="hidden" id="productId"> <div class="form-group">
-                        <label for="productName">اسم المنتج:</label>
-                        <input type="text" id="productName" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="productCategory">الفئة:</label>
-                        <select id="productCategory" required>
-                            <option value="">اختر فئة</option>
-                            <option value="أعشاب">أعشاب</option>
-                            <option value="توابل">توابل</option>
-                            <option value="زيوت طبيعية">زيوت طبيعية</option>
-                            <option value="مستحضرات تجميل طبيعية">مستحضرات تجميل طبيعية</option>
-                            <option value="عسل ومشتقاته">عسل ومشتقاته</option>
-                            <option value="أخرى">أخرى</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="productQuantity">الكمية المتاحة:</label>
-                        <input type="number" id="productQuantity" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="purchasePrice">سعر الشراء (للوحدة):</label>
-                        <input type="number" id="purchasePrice" step="0.01" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="sellingPrice">سعر البيع (للوحدة):</label>
-                        <input type="number" id="sellingPrice" step="0.01" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="productDescription">الوصف:</label>
-                        <textarea id="productDescription"></textarea>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="submit-btn">حفظ المنتج</button>
-                        <button type="button" class="cancel-btn" id="cancelEdit">إلغاء</button>
-                    </div>
-                </form>
+        <div id="loading-indicator">
+            <div class="spinner"></div>
+            <span>جاري التحميل...</span>
+        </div>
+        <div id="content-area">
             </div>
-
-            <h2>المنتجات المتوفرة</h2>
-            <p id="productsLoading" style="text-align: center; color: var(--light-text);">جاري تحميل المنتجات...</p>
-            <table id="productsTable">
-                <thead>
-                    <tr>
-                        <th>اسم المنتج</th>
-                        <th>الفئة</th>
-                        <th>الكمية</th>
-                        <th>سعر الشراء</th>
-                        <th>سعر البيع</th>
-                        <th>الإجراءات</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    </tbody>
-            </table>
-        </section>
-
-        <section id="sales" class="content-section">
-            <header><h1>سجل المبيعات</h1></header>
-            <p style="text-align: center; color: var(--light-text); font-size: 18px;">هذا القسم قيد الإنشاء.</p>
-        </section>
-        <section id="customers" class="content-section">
-            <header><h1>إدارة العملاء</h1></header>
-            <p style="text-align: center; color: var(--light-text); font-size: 18px;">هذا القسم قيد الإنشاء.</p>
-        </section>
-        <section id="reports" class="content-section">
-            <header><h1>التقارير</h1></header>
-            <p style="text-align: center; color: var(--light-text); font-size: 18px;">هذا القسم قيد الإنشاء.</p>
-        </section>
-        <section id="settings" class="content-section">
-            <header><h1>الإعدادات</h1></header>
-            <p style="text-align: center; color: var(--light-text); font-size: 18px;">هذا القسم قيد الإنشاء.</p>
-        </section>
-
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-        // استيراد Firebase Firestore
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
-        // Your web app's Firebase configuration
+        // Your web app's Firebase configuration (مهم جداً أن تكون هنا أيضاً)
         const firebaseConfig = {
             apiKey: "AIzaSyC5ls-rPdJ65x5BoMGwAOpdcPtD585C2ys",
             authDomain: "pharmacy-inventory-bf04a.firebaseapp.com",
@@ -648,35 +476,27 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app); // تهيئة Firestore
+        // جعل تطبيق Firebase متاحاً للصفحات المحملة
+        window.firebaseApp = app;
 
         // العناصر الأساسية في الصفحة
         const logoutButton = document.getElementById('logoutButton');
         const menuItems = document.querySelectorAll('.menu-item');
-        const contentSections = document.querySelectorAll('.content-section');
-
-        // عناصر نموذج المنتجات
-        const productForm = document.getElementById('productForm');
-        const productIdInput = document.getElementById('productId');
-        const productNameInput = document.getElementById('productName');
-        const productCategorySelect = document.getElementById('productCategory');
-        const productQuantityInput = document.getElementById('productQuantity');
-        const purchasePriceInput = document.getElementById('purchasePrice');
-        const sellingPriceInput = document.getElementById('sellingPrice');
-        const productDescriptionTextarea = document.getElementById('productDescription');
-        const productsTableBody = document.querySelector('#productsTable tbody');
-        const productsLoadingMessage = document.getElementById('productsLoading');
-        const cancelEditButton = document.getElementById('cancelEdit');
-
-        let editingProductId = null; // لتتبع المنتج الذي يتم تعديله
+        const contentArea = document.getElementById('content-area');
+        const loadingIndicator = document.getElementById('loading-indicator');
 
         // حماية الصفحة: التحقق من حالة المصادقة
         onAuthStateChanged(auth, (user) => {
             if (!user) {
                 window.location.href = 'index.html'; // إعادة توجيه لصفحة تسجيل الدخول
             } else {
-                // لو المستخدم مسجل دخول، قم بتحميل المنتجات
-                loadProducts();
+                // لو المستخدم مسجل دخول، قم بتحميل لوحة التحكم الافتراضية
+                // تأكد أن هذا يتم مرة واحدة فقط عند التحميل الأولي
+                if (!contentArea.dataset.loaded) { // منع إعادة التحميل عند التنقل
+                    const initialPath = document.querySelector('.menu-item.active').dataset.path;
+                    loadContent(initialPath);
+                    contentArea.dataset.loaded = 'true';
+                }
             }
         });
 
@@ -693,168 +513,76 @@
             }
         });
 
+        // وظيفة تحميل المحتوى ديناميكياً
+        async function loadContent(path) {
+            loadingIndicator.style.display = 'flex'; // إظهار مؤشر التحميل
+            contentArea.innerHTML = ''; // مسح المحتوى الحالي
+
+            try {
+                const response = await fetch(path);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const html = await response.text();
+
+                // استخراج محتوى الـ <body> فقط من الملف المحمل
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const loadedBodyContent = doc.body.innerHTML;
+
+                contentArea.innerHTML = loadedBodyContent;
+
+                // الآن، يجب تنفيذ أي سكربتات داخل المحتوى المحمل
+                // نستخدم setTimeout لضمان أن العناصر DOM قد تم تحميلها بالكامل قبل محاولة الوصول إليها
+                setTimeout(() => {
+                    const scripts = contentArea.querySelectorAll('script');
+                    scripts.forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                        newScript.textContent = oldScript.textContent;
+                        oldScript.parentNode.replaceChild(newScript, oldScript);
+                    });
+                }, 0); // يؤجل التنفيذ قليلاً للسماح بتحميل DOM
+
+            } catch (error) {
+                console.error("خطأ في تحميل المحتوى:", error);
+                contentArea.innerHTML = `<div style="text-align: center; color: var(--danger-color); padding: 50px;">
+                                           <h2>عذراً، حدث خطأ في تحميل هذا القسم.</h2>
+                                           <p>الرجاء التأكد من وجود الملف "${path}" والاتصال بالإنترنت.</p>
+                                        </div>`;
+            } finally {
+                loadingIndicator.style.display = 'none'; // إخفاء مؤشر التحميل
+            }
+        }
+
         // وظيفة تبديل الأقسام في لوحة التحكم
         menuItems.forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
-                const targetSectionId = item.dataset.section;
+                const targetPath = item.dataset.path;
 
-                // إزالة التفعيل من جميع عناصر القائمة والأقسام
+                // إزالة التفعيل من جميع عناصر القائمة
                 menuItems.forEach(menu => menu.classList.remove('active'));
-                contentSections.forEach(section => section.classList.remove('active'));
 
-                // تفعيل العنصر والقسم المستهدف
+                // تفعيل العنصر المستهدف
                 item.classList.add('active');
-                document.getElementById(targetSectionId).classList.add('active');
 
-                // إذا كنا في قسم المنتجات، أعد تحميل المنتجات
-                if (targetSectionId === 'products') {
-                    loadProducts();
-                }
+                // تحميل المحتوى الجديد
+                loadContent(targetPath);
             });
         });
 
-        // وظيفة إضافة/تعديل المنتجات (Form Submission)
-        productForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const productData = {
-                name: productNameInput.value,
-                category: productCategorySelect.value,
-                quantity: parseInt(productQuantityInput.value),
-                purchasePrice: parseFloat(purchasePriceInput.value),
-                sellingPrice: parseFloat(sellingPriceInput.value),
-                description: productDescriptionTextarea.value || ''
-            };
-
-            try {
-                if (editingProductId) {
-                    // تعديل منتج موجود
-                    const productRef = doc(db, "products", editingProductId);
-                    await updateDoc(productRef, productData);
-                    alert("تم تعديل المنتج بنجاح!");
-                } else {
-                    // إضافة منتج جديد
-                    await addDoc(collection(db, "products"), productData);
-                    alert("تم إضافة المنتج بنجاح!");
-                }
-                productForm.reset(); // مسح النموذج
-                editingProductId = null; // إعادة تعيين وضع التعديل
-                cancelEditButton.style.display = 'none'; // إخفاء زر الإلغاء
-                productForm.querySelector('button[type="submit"]').textContent = 'حفظ المنتج'; // إعادة نص الزر
-                loadProducts(); // إعادة تحميل المنتجات في الجدول
-            } catch (error) {
-                console.error("خطأ في حفظ المنتج:", error);
-                alert("حدث خطأ أثناء حفظ المنتج. يرجى المحاولة مرة أخرى.");
-            }
+        // يتم الآن استدعاء loadContent داخل onAuthStateChanged بعد التحقق من تسجيل الدخول
+        // لمنع التحميل المزدوج، أضفت dataset.loaded
+        // (لا حاجة لـ DOMContentLoaded منفصل هنا لأن onAuthStateChanged يقوم بالمهمة)
+        // إذا كنت تريد أن يتم التحميل الأول حتى بدون تسجيل دخول (للتجربة)،
+        // يمكنك تفعيل هذا الكود مؤقتاً:
+        /*
+        document.addEventListener('DOMContentLoaded', () => {
+            const initialPath = document.querySelector('.menu-item.active').dataset.path;
+            loadContent(initialPath);
         });
-
-        // وظيفة تحميل المنتجات من Firebase وعرضها في الجدول
-        async function loadProducts() {
-            productsLoadingMessage.style.display = 'block'; // إظهار رسالة التحميل
-            productsTableBody.innerHTML = ''; // مسح أي بيانات سابقة
-            try {
-                const productsCol = collection(db, 'products');
-                const productSnapshot = await getDocs(productsCol);
-                const productList = productSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-                if (productList.length === 0) {
-                    productsTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--light-text);">لا توجد منتجات حتى الآن.</td></tr>';
-                } else {
-                    productList.forEach(product => {
-                        const row = productsTableBody.insertRow();
-                        row.innerHTML = `
-                            <td>${product.name}</td>
-                            <td>${product.category}</td>
-                            <td>${product.quantity}</td>
-                            <td>${product.purchasePrice.toFixed(2)}</td>
-                            <td>${product.sellingPrice.toFixed(2)}</td>
-                            <td class="action-buttons">
-                                <button class="edit-btn" data-id="${product.id}">تعديل</button>
-                                <button class="delete-btn" data-id="${product.id}">حذف</button>
-                            </td>
-                        `;
-                    });
-                }
-            } catch (error) {
-                console.error("خطأ في تحميل المنتجات:", error);
-                productsTableBody.innerHTML = '<tr><td colspan="6" style="color: var(--danger-color); text-align: center;">حدث خطأ أثناء تحميل المنتجات.</td></tr>';
-            } finally {
-                productsLoadingMessage.style.display = 'none'; // إخفاء رسالة التحميل
-            }
-        }
-
-        // معالج النقر على أزرار التعديل والحذف في الجدول
-        productsTableBody.addEventListener('click', async (e) => {
-            if (e.target.classList.contains('edit-btn')) {
-                const productId = e.target.dataset.id;
-                await populateFormForEdit(productId);
-            } else if (e.target.classList.contains('delete-btn')) {
-                const productId = e.target.dataset.id;
-                if (confirm('هل أنت متأكد من رغبتك في حذف هذا المنتج؟')) {
-                    await deleteProduct(productId);
-                }
-            }
-        });
-
-        // وظيفة ملء النموذج ببيانات المنتج للتعديل
-        async function populateFormForEdit(productId) {
-            try {
-                const productRef = doc(db, "products", productId);
-                const productSnap = await getDoc(productRef); // يجب استيراد getDoc
-                if (productSnap.exists()) {
-                    const product = productSnap.data();
-                    productIdInput.value = productId;
-                    productNameInput.value = product.name;
-                    productCategorySelect.value = product.category;
-                    productQuantityInput.value = product.quantity;
-                    purchasePriceInput.value = product.purchasePrice;
-                    sellingPriceInput.value = product.sellingPrice;
-                    productDescriptionTextarea.value = product.description;
-
-                    editingProductId = productId;
-                    productForm.querySelector('button[type="submit"]').textContent = 'تحديث المنتج';
-                    cancelEditButton.style.display = 'inline-block'; // إظهار زر الإلغاء
-
-                    // قم بالتمرير إلى أعلى النموذج لجعل عملية التعديل مرئية
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-
-                } else {
-                    alert("المنتج غير موجود.");
-                    console.error("No such document!");
-                }
-            } catch (error) {
-                console.error("خطأ في جلب بيانات المنتج للتعديل:", error);
-                alert("حدث خطأ أثناء جلب بيانات المنتج.");
-            }
-        }
-        // **********************************************
-        // ملاحظة مهمة: يجب استيراد 'getDoc' من Firebase Firestore في بداية السكريبت
-        // import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
-        // تأكد من إضافة getDoc للقائمة أعلاه
-        // **********************************************
-
-
-        // وظيفة إلغاء التعديل
-        cancelEditButton.addEventListener('click', () => {
-            productForm.reset();
-            editingProductId = null;
-            cancelEditButton.style.display = 'none';
-            productForm.querySelector('button[type="submit"]').textContent = 'حفظ المنتج';
-        });
-
-        // وظيفة حذف المنتج
-        async function deleteProduct(productId) {
-            try {
-                await deleteDoc(doc(db, "products", productId));
-                alert("تم حذف المنتج بنجاح!");
-                loadProducts(); // إعادة تحميل المنتجات
-            } catch (error) {
-                console.error("خطأ في حذف المنتج:", error);
-                alert("حدث خطأ أثناء حذف المنتج. يرجى المحاولة مرة أخرى.");
-            }
-        }
-
+        */
     </script>
 </body>
 </html>
