@@ -9,30 +9,30 @@
 
     <style>
         body {
-            font-family: 'Cairo', sans-serif; /* استخدام خط كايرو للنصوص العامة */
-            background-color: #e0f2f7; /* لون خلفية أزرق فاتح وهادئ */
+            font-family: 'Cairo', sans-serif;
+            background-color: #e0f2f7;
             display: flex;
-            flex-direction: column; /* لجعل العناصر ترتب عمودياً */
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            direction: rtl; /* لدعم اللغة العربية من اليمين لليسار */
-            text-align: center; /* محاذاة النص للمركز */
-            overflow: hidden; /* لمنع أي سكرول غير مرغوب فيه */
-            padding: 20px; /* بادينج خفيف لعدم الالتصاق بالحواف */
-            box-sizing: border-box; /* لضمان أن البادينج لا يزيد من حجم العنصر */
+            direction: rtl;
+            text-align: center;
+            overflow: hidden;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         .app-title {
-            font-family: 'Reem Kufi Ink', serif; /* خط مربعات للشعار النصي */
-            font-size: 60px; /* حجم أكبر للشعار */
-            color: #2e7d32; /* لون أخضر داكن للشعار */
-            margin-bottom: 20px; /* مسافة أقل بين الشعار والعنوان الفرعي */
+            font-family: 'Reem Kufi Ink', serif;
+            font-size: 60px;
+            color: #2e7d32;
+            margin-bottom: 20px;
             font-weight: 700;
-            letter-spacing: 3px; /* تباعد أكبر بين الحروف */
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.2); /* ظل أعمق للشعار */
-            animation: fadeInDown 1s ease-out; /* تأثير ظهور من الأعلى */
+            letter-spacing: 3px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
+            animation: fadeInDown 1s ease-out;
         }
 
         @keyframes fadeInDown {
@@ -42,11 +42,11 @@
 
         h2 {
             color: #444;
-            margin-bottom: 40px; /* مسافة أكبر أسفل العنوان الفرعي */
-            font-size: 36px; /* حجم أكبر للعنوان الفرعي */
+            margin-bottom: 40px;
+            font-size: 36px;
             font-weight: 700;
-            animation: fadeIn 1.2s ease-out 0.2s forwards; /* تأثير ظهور تدريجي بعد الشعار */
-            opacity: 0; /* يبدأ مخفيًا */
+            animation: fadeIn 1.2s ease-out 0.2s forwards;
+            opacity: 0;
         }
 
         @keyframes fadeIn {
@@ -55,15 +55,15 @@
         }
 
         form {
-            background-color: rgba(255, 255, 255, 0.9); /* خلفية بيضاء شفافة للنموذج */
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 40px;
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* ظل خفيف للنموذج */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 450px; /* عرض أكبر قليلاً للنموذج */
-            animation: zoomIn 1s ease-out 0.4s forwards; /* تأثير تكبير بعد الظهور */
-            opacity: 0; /* يبدأ مخفيًا */
-            text-align: right; /* محاذاة عناصر النموذج لليمين */
+            max-width: 450px;
+            animation: zoomIn 1s ease-out 0.4s forwards;
+            opacity: 0;
+            text-align: right;
             box-sizing: border-box;
         }
 
@@ -86,44 +86,44 @@
 
         .input-group input[type="email"],
         .input-group input[type="password"] {
-            font-family: 'Cairo', sans-serif; /* استخدام خط كايرو لخانة الإدخال */
-            width: calc(100% - 28px); /* خصم البadمنج من العرض (14px * 2) */
+            font-family: 'Cairo', sans-serif;
+            width: calc(100% - 28px);
             padding: 15px 14px;
-            border: 1px solid #a8dadc; /* حدود بلون أزرق فاتح ومنعش */
-            border-radius: 10px; /* زوايا مستديرة أكثر */
+            border: 1px solid #a8dadc;
+            border-radius: 10px;
             font-size: 18px;
             box-sizing: border-box;
             transition: all 0.3s ease;
-            background-color: #f1faee; /* خلفية فاتحة جداً لخانة الإدخال */
+            background-color: #f1faee;
         }
 
         .input-group input[type="email"]:focus,
         .input-group input[type="password"]:focus {
-            border-color: #1d7b87; /* لون أزرق داكن عند التركيز */
+            border-color: #1d7b87;
             outline: none;
-            box-shadow: 0 0 0 5px rgba(29, 123, 135, 0.2); /* ظل تركيز أزرق خفيف */
-            background-color: #ffffff; /* خلفية بيضاء عند التركيز */
+            box-shadow: 0 0 0 5px rgba(29, 123, 135, 0.2);
+            background-color: #ffffff;
         }
 
         button[type="submit"] {
-            font-family: 'Cairo', sans-serif; /* استخدام خط كايرو للزر */
-            background-color: #4CAF50; /* أخضر */
+            font-family: 'Cairo', sans-serif;
+            background-color: #4CAF50;
             color: white;
             padding: 16px 30px;
             border: none;
-            border-radius: 10px; /* زوايا مستديرة أكثر */
+            border-radius: 10px;
             cursor: pointer;
             font-size: 20px;
             font-weight: 700;
             transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
             width: 100%;
-            margin-top: 30px; /* مسافة أكبر فوق الزر */
+            margin-top: 30px;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
         }
 
         button[type="submit"]:hover {
-            background-color: #45a049; /* درجة أغمق عند التحويم */
-            transform: translateY(-4px); /* تأثير رفع أكبر عند التحويم */
+            background-color: #45a049;
+            transform: translateY(-4px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
         }
 
@@ -133,18 +133,18 @@
         }
 
         .error-message {
-            color: #d32f2f; /* أحمر داكن للخطأ */
+            color: #d32f2f;
             margin-top: 25px;
             font-size: 17px;
             font-weight: 500;
             line-height: 1.5;
-            text-align: center; /* محاذاة رسالة الخطأ للمركز */
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <h1 class="app-title">شيخ العرب</h1>
-    <h2>لوحة تحكم محل العطارة</h2>
+    <h2>نظام إدارة محل العطارة</h2>
     <form id="loginForm">
         <div class="input-group">
             <label for="email">البريد الإلكتروني:</label>
@@ -181,19 +181,17 @@
         const errorMessage = document.getElementById('errorMessage');
 
         loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // منع إعادة تحميل الصفحة
+            e.preventDefault();
 
             const email = loginForm.email.value;
             const password = loginForm.password.value;
 
             try {
                 await signInWithEmailAndPassword(auth, email, password);
-                // لو تسجيل الدخول نجح:
                 console.log("تم تسجيل الدخول بنجاح!");
-                errorMessage.textContent = ''; // مسح أي رسائل خطأ سابقة
-                window.location.href = 'dashboard.html'; // إعادة توجيه لصفحة لوحة التحكم
+                errorMessage.textContent = '';
+                window.location.href = 'dashboard.html';
             } catch (error) {
-                // لو حصل خطأ في تسجيل الدخول:
                 let message = 'حدث خطأ غير متوقع. الرجاء المحاولة مرة أخرى.';
                 switch (error.code) {
                     case 'auth/user-not-found':
