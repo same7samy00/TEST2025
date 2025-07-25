@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - شيخ العرب</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi+Ink&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #4CAF50; /* أخضر أساسي */
+            --secondary-color: #2e7d32; /* أخضر داكن ثانوي */
+            --light-bg: #e0f2f7; /* خلفية فاتحة */
+            --card-bg: #ffffff; /* خلفية البطاقات */
+            --text-color: #333; /* لون النص الأساسي */
+            --light-text: #555; /* لون نص فاتح */
+            --border-color: #ddd; /* لون الحدود */
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --shadow-medium: rgba(0, 0, 0, 0.15);
+            --shadow-heavy: rgba(0, 0, 0, 0.2);
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--light-bg);
+            margin: 0;
+            display: flex;
+            direction: rtl; /* من اليمين لليسار */
+            overflow-x: hidden; /* منع التمرير الأفقي */
+        }
+
+        /* شريط التنقل الجانبي (Sidebar) */
+        .sidebar {
+            width: 250px;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 30px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 2px 0 10px var(--shadow-medium);
+            position: fixed; /* تثبيت الشريط الجانبي */
+            height: 100vh;
+            top: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .logo-text {
+            font-family: 'Reem Kufi Ink', serif; /* خط مربعات للشعار */
+            font-size: 38px;
+            font-weight: 700;
+            margin-bottom: 50px;
+            color: #c8e6c9; /* لون فاتح للشعار */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .menu {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+        }
+
+        .menu li {
+            margin-bottom: 10px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            transition: background-color 0.3s ease, padding-right 0.3s ease;
+            border-right: 5px solid transparent; /* حدود غير مرئية مبدئياً */
+        }
+
+        .menu a i {
+            margin-left: 15px; /* مسافة بين الأيقونة والنص */
+            font-size: 20px;
+            width: 25px; /* لضمان محاذاة الأيقونات */
+            text-align: center;
+        }
+
+        .menu a:hover, .menu a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-right-color: var(--primary-color); /* لون الحدود عند التحويم/النشاط */
+            padding-right: 30px; /* تأثير بسيط عند التحويم */
+        }
+
+        /* المحتوى الرئيسي (Main Content) */
+        .main-content {
+            margin-right: 250px; /* لإفساح المجال للشريط الجانبي */
+            flex-grow: 1;
+            padding: 40px;
+            padding-top: 60px; /* لترك مساحة كافية للعنوان */
+            box-sizing: border-box;
+            width: calc(100% - 250px); /* يضمن المحتوى يأخذ العرض المتبقي */
+        }
+
+        header {
+            margin-bottom: 50px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+
+        header h1 {
+            font-size: 42px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 19px;
+            color: var(--light-text);
+            line-height: 1.6;
+        }
+
+        .overview-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* 4 أعمدة على الشاشات الكبيرة */
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px var(--shadow-light);
+            text-align: right;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-top: 5px solid var(--primary-color); /* شريط لوني في الأعلى */
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px var(--shadow-medium);
+        }
+
+        .card h3 {
+            font-size: 24px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .card p {
+            font-size: 36px;
+            color: var(--text-color);
+            font-weight: 700;
+        }
+
+        .quick-actions {
+            margin-bottom: 50px;
+        }
+
+        .quick-actions h2 {
+            font-size: 32px;
+            color: var(--text-color);
+            margin-bottom: 25px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+        }
+
+        .action-btn {
+            font-family: 'Cairo', sans-serif;
+            background-color: #66bb6a; /* أخضر فاتح للزر */
+            color: white;
+            padding: 18px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 10px var(--shadow-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .action-btn:hover {
+            background-color: #5cb85c;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px var(--shadow-medium);
+        }
+
+        .recent-activity {
+            margin-bottom: 50px;
+        }
+
+        .recent-activity h2 {
+            font-size: 32px;
+            color: var(--text-color);
+            margin-bottom: 25px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden; /* للحفاظ على حدود الجدول المستديرة */
+            box-shadow: 0 5px 15px var(--shadow-light);
+        }
+
+        table th, table td {
+            padding: 18px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        table th {
+            background-color: #e8f5e9; /* لون أخضر فاتح جداً لرأس الجدول */
+            color: var(--secondary-color);
+            font-size: 17px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        table tr:last-child td {
+            border-bottom: none;
+        }
+
+        table tbody tr:hover {
+            background-color: #f0fdf0; /* لون خفيف عند التحويم على الصف */
+        }
+
+        /* تخصيص الأيقونات (باستخدام Font Awesome) */
+        .icon-dashboard::before { content: "\f009"; font-family: "Font Awesome 6 Free"; font-weight: 900; }
+        .icon-products::before { content: "\f486"; font-family: "Font Awesome 6 Free"; font-weight: 900; }
+        .icon-sales::before { content: "\f53d"; font-family: "Font Awesome 6 Free"; font-weight: 900; }
+        .icon-customers::before { content: "\f0c0"; font-family: "Font Awesome 6 Free"; font-weight: 900; }
+        .icon-reports::before { content: "\f671"; font-family: "Font Awesome 6 Free"; font-weight: 900; }
+        .icon-settings::before { content: "\f013"; font-family: "Font Awesome 6 Free"; font-weight: 900; }
+        .icon-logout::before { content: "\f08b"; font-family: "Font Awesome 6 Free"; font-weight: 900; }
+
+        /* تعديلات على الهاتف والشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative; /* يصبح نسبياً وليس مثبتاً */
+                padding: 20px 0;
+                box-shadow: 0 2px 10px var(--shadow-medium);
+            }
+
+            .main-content {
+                margin-right: 0;
+                width: 100%;
+                padding: 20px;
+                padding-top: 30px;
+            }
+
+            .menu {
+                flex-direction: row; /* القائمة أفقية على الجوال */
+                flex-wrap: wrap; /* تسمح بالنزول لسطر جديد */
+                justify-content: center;
+            }
+
+            .menu li {
+                width: 45%; /* عنصرين في الصف */
+                margin-bottom: 10px;
+                text-align: center;
+            }
+
+            .menu a {
+                justify-content: center;
+                border-right: none; /* إزالة حدود اليمين */
+                border-bottom: 3px solid transparent; /* إضافة حدود سفلية بدلاً من ذلك */
+                padding: 12px 15px;
+            }
+            .menu a:hover, .menu a.active {
+                border-right-color: transparent;
+                border-bottom-color: var(--primary-color);
+                padding-right: 15px; /* إلغاء تأثير الـ padding-right */
+            }
+
+            .logo-text {
+                margin-bottom: 30px;
+                font-size: 32px;
+            }
+
+            header h1 {
+                font-size: 32px;
+            }
+
+            header p {
+                font-size: 16px;
+            }
+
+            .overview-cards {
+                grid-template-columns: 1fr; /* عمود واحد على الجوال */
+            }
+
+            .quick-actions h2, .recent-activity h2 {
+                font-size: 26px;
+            }
+
+            .actions-grid {
+                grid-template-columns: 1fr; /* عمود واحد للأزرار على الجوال */
+            }
+
+            table th, table td {
+                padding: 12px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-text">شيخ العرب</div>
+        <ul class="menu">
+            <li><a href="#" class="active"><i class="fas fa-chart-line icon-dashboard"></i> لوحة التحكم</a></li>
+            <li><a href="#"><i class="fas fa-boxes icon-products"></i> إدارة المنتجات</a></li>
+            <li><a href="#"><i class="fas fa-shopping-cart icon-sales"></i> سجل المبيعات</a></li>
+            <li><a href="#"><i class="fas fa-users icon-customers"></i> إدارة العملاء</a></li>
+            <li><a href="#"><i class="fas fa-chart-pie icon-reports"></i> التقارير</a></li>
+            <li><a href="#"><i class="fas fa-cogs icon-settings"></i> الإعدادات</a></li>
+            <li><a href="#" id="logoutButton"><i class="fas fa-sign-out-alt icon-logout"></i> تسجيل الخروج</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <header>
+            <h1>مرحباً بك في لوحة تحكم شيخ العرب</h1>
+            <p>هنا يمكنك إدارة محل العطارة الخاص بك بكفاءة.</p>
+        </header>
+
+        <section class="overview-cards">
+            <div class="card">
+                <h3>إجمالي المنتجات</h3>
+                <p>150 منتج</p>
+            </div>
+            <div class="card">
+                <h3>مبيعات اليوم</h3>
+                <p>5,200 جنيه</p>
+            </div>
+            <div class="card">
+                <h3>منتجات على وشك النفاذ</h3>
+                <p>12 منتج</p>
+            </div>
+            <div class="card">
+                <h3>عملاء جدد</h3>
+                <p>5 عملاء</p>
+            </div>
+        </section>
+
+        <section class="quick-actions">
+            <h2>إجراءات سريعة</h2>
+            <div class="actions-grid">
+                <button class="action-btn">إضافة منتج جديد</button>
+                <button class="action-btn">تسجيل بيع</button>
+                <button class="action-btn">عرض المنتجات</button>
+                <button class="action-btn">عرض المبيعات</button>
+            </div>
+        </section>
+
+        <section class="recent-activity">
+            <h2>الأنشطة الأخيرة</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>النوع</th>
+                        <th>التفاصيل</th>
+                        <th>التاريخ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>إضافة منتج</td>
+                        <td>تمت إضافة "زيت اللوز الحلو"</td>
+                        <td>25 يوليو 2025</td>
+                    </tr>
+                    <tr>
+                        <td>بيع</td>
+                        <td>فاتورة #123456 بقيمة 350 جنيه</td>
+                        <td>25 يوليو 2025</td>
+                    </tr>
+                    <tr>
+                        <td>تعديل مخزون</td>
+                        <td>تحديث كمية "عشب الروزماري"</td>
+                        <td>24 يوليو 2025</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+        // Your web app's Firebase configuration (نفس الإعدادات اللي استخدمتها قبل كده)
+        const firebaseConfig = {
+            apiKey: "AIzaSyC5ls-rPdJ65x5BoMGwAOpdcPtD585C2ys",
+            authDomain: "pharmacy-inventory-bf04a.firebaseapp.com",
+            projectId: "pharmacy-inventory-bf04a",
+            storageBucket: "pharmacy-inventory-bf04a.firebasestorage.app",
+            messagingSenderId: "937788650384",
+            appId: "1:937788650384:web:6451225d00e648f3a0b915",
+            measurementId: "G-ZGC9EQ55SL"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // حماية الصفحة: التحقق من حالة المصادقة
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                // لو المستخدم مش مسجل دخول، حوله لصفحة تسجيل الدخول
+                window.location.href = 'index.html';
+            }
+            // لو المستخدم مسجل دخول، كمل عرض الصفحة عادي
+        });
+
+        // وظيفة تسجيل الخروج
+        const logoutButton = document.getElementById('logoutButton');
+        logoutButton.addEventListener('click', async (e) => {
+            e.preventDefault(); // منع سلوك الرابط الافتراضي
+            try {
+                await signOut(auth);
+                console.log("تم تسجيل الخروج بنجاح!");
+                window.location.href = 'index.html'; // العودة لصفحة تسجيل الدخول
+            } catch (error) {
+                console.error("خطأ في تسجيل الخروج:", error.message);
+                alert("حدث خطأ أثناء تسجيل الخروج. يرجى المحاولة مرة أخرى.");
+            }
+        });
+    </script>
+</body>
+</html>
