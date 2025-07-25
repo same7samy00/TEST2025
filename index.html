@@ -12,80 +12,96 @@
             font-family: 'Cairo', sans-serif; /* استخدام خط كايرو للنصوص العامة */
             background-color: #e0f2f7; /* لون خلفية أزرق فاتح وهادئ */
             display: flex;
+            flex-direction: column; /* لجعل العناصر ترتب عمودياً */
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
             direction: rtl; /* لدعم اللغة العربية من اليمين لليسار */
-            text-align: right; /* محاذاة النص لليمين */
+            text-align: center; /* محاذاة النص للمركز */
             overflow: hidden; /* لمنع أي سكرول غير مرغوب فيه */
-        }
-
-        .login-container {
-            background-color: #ffffff;
-            padding: 50px;
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* ظل أعمق وأكثر انتشارًا */
-            width: 100%;
-            max-width: 420px;
-            text-align: center;
-            box-sizing: border-box; /* لضمان أن البادينج لا يوسع العنصر */
-            animation: fadeIn 1s ease-out; /* إضافة تأثير ظهور تدريجي */
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            padding: 20px; /* بادينج خفيف لعدم الالتصاق بالحواف */
+            box-sizing: border-box; /* لضمان أن البادينج لا يزيد من حجم العنصر */
         }
 
         .app-title {
             font-family: 'Reem Kufi Ink', serif; /* خط مربعات للشعار النصي */
-            font-size: 48px; /* حجم أكبر للشعار */
+            font-size: 60px; /* حجم أكبر للشعار */
             color: #2e7d32; /* لون أخضر داكن للشعار */
-            margin-bottom: 30px;
+            margin-bottom: 20px; /* مسافة أقل بين الشعار والعنوان الفرعي */
             font-weight: 700;
-            letter-spacing: 2px; /* تباعد بين الحروف لإعطاء شكل جمالي */
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1); /* ظل خفيف للشعار */
+            letter-spacing: 3px; /* تباعد أكبر بين الحروف */
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.2); /* ظل أعمق للشعار */
+            animation: fadeInDown 1s ease-out; /* تأثير ظهور من الأعلى */
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         h2 {
-            color: #333;
-            margin-bottom: 35px;
-            font-size: 30px;
+            color: #444;
+            margin-bottom: 40px; /* مسافة أكبر أسفل العنوان الفرعي */
+            font-size: 36px; /* حجم أكبر للعنوان الفرعي */
             font-weight: 700;
+            animation: fadeIn 1.2s ease-out 0.2s forwards; /* تأثير ظهور تدريجي بعد الشعار */
+            opacity: 0; /* يبدأ مخفيًا */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        form {
+            background-color: rgba(255, 255, 255, 0.9); /* خلفية بيضاء شفافة للنموذج */
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* ظل خفيف للنموذج */
+            width: 100%;
+            max-width: 450px; /* عرض أكبر قليلاً للنموذج */
+            animation: zoomIn 1s ease-out 0.4s forwards; /* تأثير تكبير بعد الظهور */
+            opacity: 0; /* يبدأ مخفيًا */
+            text-align: right; /* محاذاة عناصر النموذج لليمين */
+            box-sizing: border-box;
+        }
+
+        @keyframes zoomIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .input-group {
             margin-bottom: 25px;
-            text-align: right;
         }
 
         .input-group label {
             display: block;
             margin-bottom: 10px;
             color: #555;
-            font-size: 17px;
+            font-size: 18px;
             font-weight: 600;
         }
 
         .input-group input[type="email"],
         .input-group input[type="password"] {
             font-family: 'Cairo', sans-serif; /* استخدام خط كايرو لخانة الإدخال */
-            width: calc(100% - 24px); /* خصم البادينج من العرض (12px * 2) */
-            padding: 14px 12px;
-            border: 1px solid #c8e6c9; /* حدود بلون أخضر فاتح */
-            border-radius: 8px;
-            font-size: 17px;
+            width: calc(100% - 28px); /* خصم البادينج من العرض (14px * 2) */
+            padding: 15px 14px;
+            border: 1px solid #a8dadc; /* حدود بلون أزرق فاتح ومنعش */
+            border-radius: 10px; /* زوايا مستديرة أكثر */
+            font-size: 18px;
             box-sizing: border-box;
             transition: all 0.3s ease;
-            background-color: #f8fcf8; /* خلفية فاتحة جداً لخانة الإدخال */
+            background-color: #f1faee; /* خلفية فاتحة جداً لخانة الإدخال */
         }
 
         .input-group input[type="email"]:focus,
         .input-group input[type="password"]:focus {
-            border-color: #4CAF50; /* لون أخضر عند التركيز */
+            border-color: #1d7b87; /* لون أزرق داكن عند التركيز */
             outline: none;
-            box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.25); /* ظل تركيز أخضر خفيف */
+            box-shadow: 0 0 0 5px rgba(29, 123, 135, 0.2); /* ظل تركيز أزرق خفيف */
             background-color: #ffffff; /* خلفية بيضاء عند التركيز */
         }
 
@@ -93,22 +109,22 @@
             font-family: 'Cairo', sans-serif; /* استخدام خط كايرو للزر */
             background-color: #4CAF50; /* أخضر */
             color: white;
-            padding: 15px 25px;
+            padding: 16px 30px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px; /* زوايا مستديرة أكثر */
             cursor: pointer;
-            font-size: 19px;
+            font-size: 20px;
             font-weight: 700;
             transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
             width: 100%;
-            margin-top: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 30px; /* مسافة أكبر فوق الزر */
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
         }
 
         button[type="submit"]:hover {
             background-color: #45a049; /* درجة أغمق عند التحويم */
-            transform: translateY(-3px); /* تأثير بسيط عند التحويم */
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-4px); /* تأثير رفع أكبر عند التحويم */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
         }
 
         button[type="submit"]:active {
@@ -118,30 +134,29 @@
 
         .error-message {
             color: #d32f2f; /* أحمر داكن للخطأ */
-            margin-top: 20px;
-            font-size: 16px;
+            margin-top: 25px;
+            font-size: 17px;
             font-weight: 500;
             line-height: 1.5;
+            text-align: center; /* محاذاة رسالة الخطأ للمركز */
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h1 class="app-title">شيخ العرب</h1>
-        <h2>تسجيل الدخول</h2>
-        <form id="loginForm">
-            <div class="input-group">
-                <label for="email">البريد الإلكتروني:</label>
-                <input type="email" id="email" required>
-            </div>
-            <div class="input-group">
-                <label for="password">كلمة المرور:</label>
-                <input type="password" id="password" required>
-            </div>
-            <button type="submit">تسجيل الدخول</button>
-            <p id="errorMessage" class="error-message"></p>
-        </form>
-    </div>
+    <h1 class="app-title">شيخ العرب</h1>
+    <h2>لوحة تحكم محل العطارة</h2>
+    <form id="loginForm">
+        <div class="input-group">
+            <label for="email">البريد الإلكتروني:</label>
+            <input type="email" id="email" required>
+        </div>
+        <div class="input-group">
+            <label for="password">كلمة المرور:</label>
+            <input type="password" id="password" required>
+        </div>
+        <button type="submit">تسجيل الدخول</button>
+        <p id="errorMessage" class="error-message"></p>
+    </form>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
