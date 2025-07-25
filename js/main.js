@@ -22,45 +22,38 @@ const reportsLink = document.getElementById('reports-link');
 // --- 1. Authentication Logic (منطق تسجيل الدخول/الخروج) ---
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // المستخدم مسجل الدخول
         authStatusDiv.classList.remove('alert-info', 'alert-danger');
         authStatusDiv.classList.add('alert-success');
         authStatusDiv.textContent = `مرحباً، ${user.email}! أنت مسجل الدخول.`;
-        loginLink.classList.add('d-none'); // إخفاء رابط تسجيل الدخول
-        logoutLink.classList.remove('d-none'); // إظهار رابط تسجيل الخروج
-        loadDashboard(); // تحميل لوحة التحكم الافتراضية بعد تسجيل الدخول
+        loginLink.classList.add('d-none');
+        logoutLink.classList.remove('d-none');
+        loadDashboard(); 
     } else {
-        // المستخدم غير مسجل الدخول
         authStatusDiv.classList.remove('alert-success');
         authStatusDiv.classList.add('alert-info');
         authStatusDiv.textContent = 'يرجى تسجيل الدخول.';
-        loginLink.classList.remove('d-none'); // إظهار رابط تسجيل الدخول
-        logoutLink.classList.add('d-none'); // إخفاء رابط تسجيل الخروج
-        showLoginForm(); // عرض نموذج تسجيل الدخول
+        loginLink.classList.remove('d-none');
+        logoutLink.classList.add('d-none');
+        showLoginForm(); 
     }
 });
 
-// عند النقر على رابط تسجيل الدخول في الناف بار
 loginLink.addEventListener('click', (e) => {
     e.preventDefault();
     showLoginForm();
 });
 
-// عند النقر على رابط تسجيل الخروج في الناف بار
 logoutLink.addEventListener('click', async (e) => {
     e.preventDefault();
     try {
-        await signOut(auth); // تسجيل الخروج من Firebase
+        await signOut(auth);
         console.log("User signed out successfully.");
-        // onAuthStateChanged سيقوم بتحديث الواجهة تلقائياً
     } catch (error) {
         console.error("Error signing out:", error.message);
         alert(`خطأ في تسجيل الخروج: ${error.message}`);
     }
 });
 
-// ** بداية محتوى صفحة "تسجيل الدخول" **
-// دالة لعرض نموذج تسجيل الدخول
 function showLoginForm() {
     contentArea.innerHTML = `
         <div class="card p-4 mx-auto" style="max-width: 400px;">
@@ -78,13 +71,12 @@ function showLoginForm() {
         </div>
     `;
 
-    // إضافة مستمع الحدث لزر تسجيل الدخول
     document.getElementById('loginBtn').addEventListener('click', async () => {
         const email = document.getElementById('emailInput').value;
         const password = document.getElementById('passwordInput').value;
         const loginErrorDiv = document.getElementById('loginError');
 
-        loginErrorDiv.classList.add('d-none'); // إخفاء أي أخطاء سابقة
+        loginErrorDiv.classList.add('d-none');
 
         if (!email || !password) {
             loginErrorDiv.textContent = 'البريد الإلكتروني وكلمة المرور مطلوبان.';
@@ -93,8 +85,7 @@ function showLoginForm() {
         }
 
         try {
-            await signInWithEmailAndPassword(auth, email, password); // محاولة تسجيل الدخول
-            // onAuthStateChanged سيقوم بتحديث الواجهة إذا نجح تسجيل الدخول
+            await signInWithEmailAndPassword(auth, email, password);
         } catch (error) {
             let errorMessage = "حدث خطأ غير معروف.";
             switch (error.code) {
@@ -117,21 +108,19 @@ function showLoginForm() {
         }
     });
 }
-// ** نهاية محتوى صفحة "تسجيل الدخول" **
 
 
 // --- 2. Dashboard / Default Content (لوحة التحكم الرئيسية) ---
 dashboardLink.addEventListener('click', (e) => {
     e.preventDefault();
-    if (auth.currentUser) { // فقط إذا كان المستخدم مسجل الدخول
+    if (auth.currentUser) { 
         loadDashboard();
     } else {
         alert('يرجى تسجيل الدخول لعرض لوحة التحكم.');
-        showLoginForm(); // أو إعادة توجيه لصفحة تسجيل الدخول
+        showLoginForm();
     }
 });
 
-// ** بداية محتوى صفحة "لوحة التحكم الرئيسية" **
 function loadDashboard() {
     contentArea.innerHTML = `
         <h2 class="text-center">لوحة التحكم</h2>
@@ -160,16 +149,13 @@ function loadDashboard() {
             </div>
         </div>
     `;
-    // إضافة مستمعي الأحداث لأزرار الوصول السريع
     document.getElementById('quick-products-link').addEventListener('click', () => loadProductsContent());
     document.getElementById('quick-sales-link').addEventListener('click', () => loadSalesContent());
     document.getElementById('quick-customers-link').addEventListener('click', () => loadCustomersContent());
 }
-// ** نهاية محتوى صفحة "لوحة التحكم الرئيسية" **
 
 
 // --- 3. Product Management (إدارة المنتجات - CRUD Operations with Firestore) ---
-// هذا الجزء يتعامل مع عرض، إضافة، تعديل، وحذف المنتجات
 productsLink.addEventListener('click', (e) => {
     e.preventDefault();
     if (auth.currentUser) {
@@ -180,11 +166,14 @@ productsLink.addEventListener('click', (e) => {
     }
 });
 
-// ** بداية محتوى صفحة "قائمة المنتجات" **
 async function loadProductsContent() {
     contentArea.innerHTML = `
         <h2 class="text-center mb-4">إدارة المنتجات</h2>
-        <button class="btn btn-primary mb-3" id="addProductBtn">إضافة منتج جديد</button>
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" id="productSearchInput" placeholder="ابحث بالاسم أو الباركود...">
+            <button class="btn btn-outline-secondary" type="button" id="productSearchBtn"><i class="bi bi-search"></i> بحث</button>
+        </div>
+        <button class="btn btn-primary mb-3" id="addProductBtn"><i class="bi bi-plus-lg"></i> إضافة منتج جديد</button>
         <div class="table-responsive">
             <table class="table table-striped table-hover">
                 <thead>
@@ -201,53 +190,136 @@ async function loadProductsContent() {
                 </tbody>
             </table>
         </div>
+        <div id="productAlerts" class="mt-4">
+            <h4><i class="bi bi-exclamation-triangle-fill text-warning"></i> تنبيهات المخزون والصلاحية</h4>
+            <ul id="stockExpiryAlerts" class="list-group">
+                <li class="list-group-item list-group-item-info">لا توجد تنبيهات حالياً.</li>
+            </ul>
+        </div>
     `;
     
     document.getElementById('addProductBtn').addEventListener('click', showAddProductForm);
-    await fetchProducts();
+    document.getElementById('productSearchBtn').addEventListener('click', () => fetchProducts(document.getElementById('productSearchInput').value));
+    document.getElementById('productSearchInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            fetchProducts(document.getElementById('productSearchInput').value);
+        }
+    });
+
+    await fetchProducts(); // Fetch all products initially
 }
 
-async function fetchProducts() {
+async function fetchProducts(searchTerm = '') {
     const productsTableBody = document.getElementById('productsTableBody');
     productsTableBody.innerHTML = ''; // مسح المحتوى السابق
+    const stockExpiryAlertsList = document.getElementById('stockExpiryAlerts');
+    stockExpiryAlertsList.innerHTML = ''; // مسح التنبيهات السابقة
+
+    let productsRef = collection(db, "products");
+    let q;
+
+    if (searchTerm) {
+        // Simple search: filter by name OR barcode
+        // Firestore doesn't support OR queries directly across different fields easily without complex indexing/Cloud Functions
+        // For simplicity, we'll fetch all and filter client-side OR use 'where' for one field.
+        // A more robust solution might use a dedicated search index (e.g., Algolia) or Cloud Functions.
+        // Here, we'll try a basic starts-with query on 'name' for demonstration
+        // For barcode, an exact match is usually expected.
+        
+        q = query(productsRef, orderBy("name"), startAt(searchTerm), endAt(searchTerm + '\uf8ff')); // Search by name (case-sensitive)
+        // You might need to refine this for case-insensitivity or full-text search
+        // For barcode, you'd add: where("barcode", "==", searchTerm)
+        // But combining OR conditions is tricky without Cloud Functions/advanced techniques.
+        // For now, let's fetch by name (startsWith) or exact barcode match.
+        // We'll adjust the query based on if the searchTerm looks like a barcode or name.
+        if (searchTerm.length > 5 && !isNaN(searchTerm)) { // Heuristic for barcode
+             q = query(productsRef, where("barcode", "==", searchTerm));
+        } else {
+             q = query(productsRef, orderBy("name"), where("name", ">=", searchTerm), where("name", "<=", searchTerm + '\uf8ff'));
+        }
+
+    } else {
+        q = query(productsRef, orderBy("name", "asc"));
+    }
 
     try {
-        const productsRef = collection(db, "products"); // جلب مجموعة المنتجات من Firestore
-        const q = query(productsRef, orderBy("name", "asc")); // ترتيب المنتجات حسب الاسم
-        const snapshot = await getDocs(q); // تنفيذ الاستعلام وجلب المستندات
+        const snapshot = await getDocs(q);
 
         if (snapshot.empty) {
-            productsTableBody.innerHTML = '<tr><td colspan="5" class="text-center">لا يوجد منتجات مسجلة.</td></tr>';
+            productsTableBody.innerHTML = '<tr><td colspan="5" class="text-center">لا يوجد منتجات مطابقة أو مسجلة.</td></tr>';
+            stockExpiryAlertsList.innerHTML = '<li class="list-group-item list-group-item-info">لا توجد تنبيهات حالياً.</li>';
             return;
         }
 
+        let hasAlerts = false;
+        const today = new Date();
+        const thirtyDaysLater = new Date();
+        thirtyDaysLater.setDate(today.getDate() + 30);
+
         snapshot.forEach(async (productDoc) => {
             const product = productDoc.data();
-            const productId = productDoc.id; // معرف المستند من Firestore
+            const productId = productDoc.id;
 
-            // حساب الكمية الإجمالية من الدفعات
             let totalQuantity = 0;
-            // Fetch batches for each product
-            const batchesRef = collection(db, `products/${productId}/batches`); // الدفعات كمجموعة فرعية
+            const batchesRef = collection(db, `products/${productId}/batches`);
             const batchesSnapshot = await getDocs(batchesRef);
+            
+            let productBatchesHtml = ''; // لجمع تفاصيل الدفعات للعرض
             batchesSnapshot.forEach(batchDoc => {
-                totalQuantity += batchDoc.data().quantity || 0;
+                const batch = batchDoc.data();
+                const batchId = batchDoc.id;
+                totalQuantity += batch.quantity || 0;
+
+                const expiryDate = new Date(batch.expiryDate); // تحويل تاريخ انتهاء الصلاحية إلى كائن Date
+
+                // تنبيهات الصلاحية
+                if (expiryDate < today) {
+                    stockExpiryAlertsList.innerHTML += `<li class="list-group-item list-group-item-danger">المنتج ${product.name} - الدفعة ${batch.batchNumber} منتهية الصلاحية (انتهت في: ${batch.expiryDate}). الكمية: ${batch.quantity}</li>`;
+                    hasAlerts = true;
+                } else if (expiryDate <= thirtyDaysLater) {
+                    stockExpiryAlertsList.innerHTML += `<li class="list-group-item list-group-item-warning">المنتج ${product.name} - الدفعة ${batch.batchNumber} قريبة من الانتهاء (ينتهي في: ${batch.expiryDate}). الكمية: ${batch.quantity}</li>`;
+                    hasAlerts = true;
+                }
+                
+                // عرض تفاصيل الدفعات في جدول المنتجات
+                productBatchesHtml += `
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <span>الدفعة: ${batch.batchNumber} | الكمية: ${batch.quantity} | ينتهي في: ${batch.expiryDate}</span>
+                        <div>
+                            <button class="btn btn-sm btn-outline-info edit-batch-btn" data-product-id="${productId}" data-batch-id="${batchId}" data-product-name="${product.name}"><i class="bi bi-pencil-square"></i></button>
+                            <button class="btn btn-sm btn-outline-danger delete-batch-btn" data-product-id="${productId}" data-batch-id="${batchId}"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </div>
+                `;
             });
+            
+            // تنبيهات الكمية المنخفضة
+            if (totalQuantity <= (product.minStockLevel || 5)) {
+                stockExpiryAlertsList.innerHTML += `<li class="list-group-item list-group-item-danger">المنتج ${product.name} - الكمية الكلية (${totalQuantity}) أقل من أو تساوي الحد الأدنى (${product.minStockLevel || 5}).</li>`;
+                hasAlerts = true;
+            }
+
 
             productsTableBody.innerHTML += `
                 <tr>
-                    <td>${product.name}</td>
+                    <td>${product.name}<br><small class="text-muted">المصنع: ${product.manufacturer || 'غير محدد'}</small></td>
                     <td>${product.barcode || 'N/A'}</td>
                     <td>${product.price}</td>
                     <td>${totalQuantity}</td>
                     <td>
-                        <button class="btn btn-sm btn-info edit-product-btn" data-id="${productId}"><i class="bi bi-pencil-square"></i> تعديل</button>
+                        <button class="btn btn-sm btn-info edit-product-btn" data-id="${productId}"><i class="bi bi-pencil-square"></i> تعديل المنتج</button>
                         <button class="btn btn-sm btn-warning add-batch-btn" data-id="${productId}" data-name="${product.name}"><i class="bi bi-box-fill"></i> إضافة دفعة</button>
-                        <button class="btn btn-sm btn-danger delete-product-btn" data-id="${productId}"><i class="bi bi-trash"></i> حذف</button>
+                        <button class="btn btn-sm btn-primary view-batches-btn" data-id="${productId}" data-name="${product.name}"><i class="bi bi-eye"></i> عرض الدفعات</button>
+                        <button class="btn btn-sm btn-danger delete-product-btn" data-id="${productId}"><i class="bi bi-trash"></i> حذف المنتج</button>
                     </td>
                 </tr>
             `;
         });
+
+        // إذا لم تكن هناك تنبيهات
+        if (!hasAlerts) {
+            stockExpiryAlertsList.innerHTML = '<li class="list-group-item list-group-item-info">لا توجد تنبيهات حالياً.</li>';
+        }
 
         // إضافة مستمعي الأحداث للأزرار التي تم إنشاؤها حديثاً (مهم جداً!)
         document.querySelectorAll('.edit-product-btn').forEach(button => {
@@ -255,6 +327,9 @@ async function fetchProducts() {
         });
         document.querySelectorAll('.add-batch-btn').forEach(button => {
             button.addEventListener('click', (e) => showAddBatchForm(e.target.dataset.id || e.target.closest('button').dataset.id, e.target.dataset.name || e.target.closest('button').dataset.name));
+        });
+        document.querySelectorAll('.view-batches-btn').forEach(button => {
+            button.addEventListener('click', (e) => viewBatches(e.target.dataset.id || e.target.closest('button').dataset.id, e.target.dataset.name || e.target.closest('button').dataset.name));
         });
         document.querySelectorAll('.delete-product-btn').forEach(button => {
             button.addEventListener('click', (e) => deleteProduct(e.target.dataset.id || e.target.closest('button').dataset.id));
@@ -265,11 +340,7 @@ async function fetchProducts() {
         productsTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">حدث خطأ في جلب المنتجات. تأكد من إعداد قواعد أمان Firestore بشكل صحيح.</td></tr>';
     }
 }
-// ** نهاية محتوى صفحة "قائمة المنتجات" **
 
-
-// ** بداية محتوى صفحة "نموذج إضافة/تعديل منتج" **
-// عرض نموذج إضافة منتج جديد
 function showAddProductForm() {
     contentArea.innerHTML = `
         <h2 class="text-center mb-4">إضافة منتج جديد</h2>
@@ -312,7 +383,6 @@ function showAddProductForm() {
     document.getElementById('cancelProductBtn').addEventListener('click', loadProductsContent);
 }
 
-// حفظ منتج جديد أو تحديث منتج موجود
 async function saveProduct() {
     const productId = document.getElementById('productId') ? document.getElementById('productId').value : null; 
     const productName = document.getElementById('productName').value;
@@ -508,6 +578,181 @@ async function saveBatch() {
         batchFormError.classList.remove('d-none');
     }
 }
+
+// ** بداية محتوى صفحة "عرض الدفعات" **
+async function viewBatches(productId, productName) {
+    contentArea.innerHTML = `
+        <h2 class="text-center mb-4">الدفعات لـ "${productName}"</h2>
+        <button class="btn btn-primary mb-3" id="addBatchFromViewBtn" data-id="${productId}" data-name="${productName}"><i class="bi bi-plus-lg"></i> إضافة دفعة جديدة</button>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>رقم الدفعة</th>
+                        <th>تاريخ الانتهاء</th>
+                        <th>الكمية</th>
+                        <th>تاريخ الشراء</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="batchesTableBody">
+                    <tr><td colspan="5" class="text-center">جارٍ تحميل الدفعات...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <button class="btn btn-secondary mt-3" id="backToProductsBtn">العودة لقائمة المنتجات</button>
+    `;
+
+    document.getElementById('addBatchFromViewBtn').addEventListener('click', (e) => showAddBatchForm(e.target.dataset.id, e.target.dataset.name));
+    document.getElementById('backToProductsBtn').addEventListener('click', loadProductsContent);
+
+    const batchesTableBody = document.getElementById('batchesTableBody');
+    batchesTableBody.innerHTML = '';
+
+    try {
+        const batchesRef = collection(db, `products/${productId}/batches`);
+        const q = query(batchesRef, orderBy("expiryDate", "asc")); // ترتيب الدفعات حسب تاريخ الانتهاء
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+            batchesTableBody.innerHTML = '<tr><td colspan="5" class="text-center">لا توجد دفعات لهذا المنتج.</td></tr>';
+            return;
+        }
+
+        snapshot.forEach(batchDoc => {
+            const batch = batchDoc.data();
+            const batchId = batchDoc.id;
+
+            batchesTableBody.innerHTML += `
+                <tr>
+                    <td>${batch.batchNumber}</td>
+                    <td>${batch.expiryDate}</td>
+                    <td>${batch.quantity}</td>
+                    <td>${batch.purchaseDate}</td>
+                    <td>
+                        <button class="btn btn-sm btn-info edit-batch-btn" data-product-id="${productId}" data-batch-id="${batchId}" data-product-name="${productName}"><i class="bi bi-pencil-square"></i> تعديل</button>
+                        <button class="btn btn-sm btn-danger delete-batch-btn" data-product-id="${productId}" data-batch-id="${batchId}"><i class="bi bi-trash"></i> حذف</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        document.querySelectorAll('.edit-batch-btn').forEach(button => {
+            button.addEventListener('click', (e) => showEditBatchForm(e.target.dataset.productId, e.target.dataset.batchId, e.target.dataset.productName));
+        });
+        document.querySelectorAll('.delete-batch-btn').forEach(button => {
+            button.addEventListener('click', (e) => deleteBatch(e.target.dataset.productId, e.target.dataset.batchId));
+        });
+
+    } catch (error) {
+        console.error("Error fetching batches:", error);
+        batchesTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">حدث خطأ في جلب الدفعات.</td></tr>';
+    }
+}
+
+// عرض نموذج تعديل دفعة موجودة
+async function showEditBatchForm(productId, batchId, productName) {
+    try {
+        const batchDocRef = doc(db, `products/${productId}/batches`, batchId);
+        const batchDoc = await getDoc(batchDocRef);
+
+        if (!batchDoc.exists()) {
+            alert('الدفعة غير موجودة!');
+            viewBatches(productId, productName);
+            return;
+        }
+
+        const batch = batchDoc.data();
+        contentArea.innerHTML = `
+            <h2 class="text-center mb-4">تعديل دفعة لـ "${productName}"</h2>
+            <div class="card p-4 mx-auto" style="max-width: 500px;">
+                <input type="hidden" id="editBatchProductId" value="${productId}">
+                <input type="hidden" id="editBatchId" value="${batchId}">
+                <div class="mb-3">
+                    <label for="editBatchNumber" class="form-label">رقم الدفعة:</label>
+                    <input type="text" class="form-control" id="editBatchNumber" value="${batch.batchNumber}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="editExpiryDate" class="form-label">تاريخ انتهاء الصلاحية:</label>
+                    <input type="date" class="form-control" id="editExpiryDate" value="${batch.expiryDate}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="editBatchQuantity" class="form-label">الكمية:</label>
+                    <input type="number" class="form-control" id="editBatchQuantity" value="${batch.quantity}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="editPurchaseDate" class="form-label">تاريخ الشراء:</label>
+                    <input type="date" class="form-control" id="editPurchaseDate" value="${batch.purchaseDate}" required>
+                </div>
+                <button id="updateBatchBtn" class="btn btn-success w-100">تحديث الدفعة</button>
+                <button class="btn btn-secondary w-100 mt-2" id="cancelEditBatchBtn" data-product-id="${productId}" data-product-name="${productName}">إلغاء</button>
+                <div id="batchFormError" class="alert alert-danger mt-3 d-none"></div>
+            </div>
+        `;
+
+        document.getElementById('updateBatchBtn').addEventListener('click', updateBatch);
+        document.getElementById('cancelEditBatchBtn').addEventListener('click', (e) => viewBatches(e.target.dataset.productId, e.target.dataset.productName));
+
+    } catch (error) {
+        console.error("Error loading batch for edit:", error);
+        alert(`خطأ في تحميل بيانات الدفعة: ${error.message}`);
+        viewBatches(productId, productName);
+    }
+}
+
+// تحديث دفعة موجودة
+async function updateBatch() {
+    const productId = document.getElementById('editBatchProductId').value;
+    const batchId = document.getElementById('editBatchId').value;
+    const productName = document.getElementById('cancelEditBatchBtn').dataset.productName; // للحصول على اسم المنتج للعودة
+    
+    const batchNumber = document.getElementById('editBatchNumber').value;
+    const expiryDate = document.getElementById('editExpiryDate').value;
+    const quantity = parseInt(document.getElementById('editBatchQuantity').value);
+    const purchaseDate = document.getElementById('editPurchaseDate').value;
+    const batchFormError = document.getElementById('batchFormError');
+
+    batchFormError.classList.add('d-none');
+
+    if (!batchNumber || !expiryDate || isNaN(quantity) || !purchaseDate || quantity <= 0) {
+        batchFormError.textContent = "جميع الحقول مطلوبة والكمية يجب أن تكون أكبر من صفر.";
+        batchFormError.classList.remove('d-none');
+        return;
+    }
+
+    try {
+        const batchDocRef = doc(db, `products/${productId}/batches`, batchId);
+        await updateDoc(batchDocRef, {
+            batchNumber: batchNumber,
+            expiryDate: expiryDate,
+            quantity: quantity,
+            purchaseDate: purchaseDate
+        });
+        alert('تم تحديث الدفعة بنجاح!');
+        viewBatches(productId, productName); // العودة إلى عرض الدفعات
+    } catch (error) {
+        console.error("Error updating batch:", error);
+        batchFormError.textContent = `خطأ في تحديث الدفعة: ${error.message}`;
+        batchFormError.classList.remove('d-none');
+    }
+}
+
+// حذف دفعة
+async function deleteBatch(productId, batchId) {
+    if (!confirm('هل أنت متأكد أنك تريد حذف هذه الدفعة؟')) {
+        return;
+    }
+    try {
+        await deleteDoc(doc(db, `products/${productId}/batches`, batchId));
+        alert('تم حذف الدفعة بنجاح!');
+        // بعد الحذف، نعود إلى قائمة المنتجات لتحديث الكميات الإجمالية
+        loadProductsContent(); 
+    } catch (error) {
+        console.error("Error deleting batch:", error);
+        alert(`خطأ في حذف الدفعة: ${error.message}`);
+    }
+}
+// ** نهاية محتوى صفحة "عرض الدفعات" **
 
 
 // --- 5. Other Module Loaders (Placeholder - صفحات ستُبنى لاحقاً) ---
