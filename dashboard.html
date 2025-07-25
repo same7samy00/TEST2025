@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi+Ink&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/dist/html5-qrcode.min.js"></script>
 
     <style>
         :root {
@@ -22,6 +23,7 @@
             --shadow-heavy: rgba(0, 0, 0, 0.2);
             --danger-color: #d32f2f; /* لون أحمر للخطر/الحذف */
             --info-color: #1d7b87; /* لون للمعلومات/تعديل */
+            --success-color: #4CAF50; /* لون للنجاح */
         }
 
         body {
@@ -30,7 +32,7 @@
             margin: 0;
             display: flex;
             direction: rtl; /* من اليمين لليسار */
-            overflow-x: hidden; /* منع التمرير الأفقي */
+            overflow-x: hidden;
         }
 
         /* شريط التنقل الجانبي (Sidebar) */
@@ -43,7 +45,7 @@
             flex-direction: column;
             align-items: center;
             box-shadow: 2px 0 10px var(--shadow-medium);
-            position: fixed; /* تثبيت الشريط الجانبي */
+            position: fixed;
             height: 100vh;
             top: 0;
             right: 0;
@@ -51,11 +53,11 @@
         }
 
         .logo-text {
-            font-family: 'Reem Kufi Ink', serif; /* خط مربعات للشعار */
+            font-family: 'Reem Kufi Ink', serif;
             font-size: 38px;
             font-weight: 700;
             margin-bottom: 50px;
-            color: #c8e6c9; /* لون فاتح للشعار */
+            color: #c8e6c9;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         }
 
@@ -78,44 +80,42 @@
             font-size: 18px;
             font-weight: 600;
             transition: background-color 0.3s ease, padding-right 0.3s ease;
-            border-right: 5px solid transparent; /* حدود غير مرئية مبدئياً */
+            border-right: 5px solid transparent;
         }
 
         .menu a i {
-            margin-left: 15px; /* مسافة بين الأيقونة والنص */
+            margin-left: 15px;
             font-size: 20px;
-            width: 25px; /* لضمان محاذاة الأيقونات */
+            width: 25px;
             text-align: center;
         }
 
         .menu a:hover, .menu a.active {
             background-color: rgba(255, 255, 255, 0.2);
-            border-right-color: var(--primary-color); /* لون الحدود عند التحويم/النشاط */
-            padding-right: 30px; /* تأثير بسيط عند التحويم */
+            border-right-color: var(--primary-color);
+            padding-right: 30px;
         }
 
         /* المحتوى الرئيسي (Main Content) */
         .main-content {
-            margin-right: 250px; /* لإفساح المجال للشريط الجانبي */
+            margin-right: 250px;
             flex-grow: 1;
             padding: 40px;
             box-sizing: border-box;
-            width: calc(100% - 250px); /* يضمن المحتوى يأخذ العرض المتبقي */
-            min-height: 100vh; /* لضمان ارتفاع المحتوى */
-            position: relative; /* لتحديد موقع عناصر التحميل */
+            width: calc(100% - 250px);
+            min-height: 100vh;
+            position: relative;
         }
 
         #content-area {
-            min-height: 600px; /* ارتفاع افتراضي للمحتوى */
+            min-height: 600px;
             display: flex;
-            flex-direction: column; /* لترتيب المحتوى عمودياً */
-            /* justify-content: center; */ /* تم إزالته لتجنب مركزة المحتوى الرأسي */
-            /* align-items: center; */ /* تم إزالته لتجنب مركزة المحتوى الأفقي */
+            flex-direction: column;
         }
 
         /* رسالة التحميل */
         #loading-indicator {
-            display: none; /* مخفية مبدئياً */
+            display: none;
             position: absolute;
             top: 50%;
             left: 50%;
@@ -217,14 +217,14 @@
             font-weight: 600;
             transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
             box-shadow: 0 3px 8px var(--shadow-light);
-            display: inline-flex; /* لجعلها تظهر بجانب بعضها البعض */
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
         }
 
         .main-content .action-btn {
-            background-color: #66bb6a; /* أخضر فاتح */
+            background-color: #66bb6a;
             color: white;
             box-shadow: 0 4px 10px var(--shadow-light);
         }
@@ -340,12 +340,12 @@
             cursor: pointer;
             font-size: 15px;
             font-weight: 500;
-            margin-right: 8px; /* مسافة بين الأزرار */
+            margin-right: 8px;
             transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
         .main-content .action-buttons .edit-btn {
-            background-color: var(--info-color); /* لون أزرق للمعلومات/تعديل */
+            background-color: var(--info-color);
             color: white;
         }
         .main-content .action-buttons .edit-btn:hover {
@@ -354,7 +354,7 @@
         }
 
         .main-content .action-buttons .delete-btn {
-            background-color: var(--danger-color); /* لون أحمر للحذف */
+            background-color: var(--danger-color);
             color: white;
         }
         .main-content .action-buttons .delete-btn:hover {
@@ -362,12 +362,12 @@
             transform: translateY(-2px);
         }
 
-        /* تعديلات على الهاتف والشاشات الصغيرة */
+        /* تعديلات للهواتف */
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
                 height: auto;
-                position: relative; /* يصبح نسبياً وليس مثبتاً */
+                position: relative;
                 padding: 20px 0;
                 box-shadow: 0 2px 10px var(--shadow-medium);
             }
@@ -380,27 +380,27 @@
             }
 
             .menu {
-                flex-direction: row; /* القائمة أفقية على الجوال */
-                flex-wrap: wrap; /* تسمح بالنزول لسطر جديد */
+                flex-direction: row;
+                flex-wrap: wrap;
                 justify-content: center;
             }
 
             .menu li {
-                width: 45%; /* عنصرين في الصف */
+                width: 45%;
                 margin-bottom: 10px;
                 text-align: center;
             }
 
             .menu a {
                 justify-content: center;
-                border-right: none; /* إزالة حدود اليمين */
-                border-bottom: 3px solid transparent; /* إضافة حدود سفلية بدلاً من ذلك */
+                border-right: none;
+                border-bottom: 3px solid transparent;
                 padding: 12px 15px;
             }
             .menu a:hover, .menu a.active {
                 border-right-color: transparent;
                 border-bottom-color: var(--primary-color);
-                padding-right: 15px; /* إلغاء تأثير الـ padding-right */
+                padding-right: 15px;
             }
 
             .logo-text {
@@ -417,7 +417,7 @@
             }
 
             .overview-cards {
-                grid-template-columns: 1fr; /* عمود واحد على الجوال */
+                grid-template-columns: 1fr;
             }
 
             .quick-actions h2, .products-management h2, .recent-activity h2 {
@@ -425,7 +425,7 @@
             }
 
             .actions-grid {
-                grid-template-columns: 1fr; /* عمود واحد للأزرار على الجوال */
+                grid-template-columns: 1fr;
             }
 
             table th, table td {
@@ -441,7 +441,7 @@
         <ul class="menu">
             <li><a href="#" class="menu-item active" data-path="dashboard-overview.html"><i class="fas fa-chart-line"></i> لوحة التحكم</a></li>
             <li><a href="#" class="menu-item" data-path="products.html"><i class="fas fa-boxes"></i> إدارة المنتجات</a></li>
-            <li><a href="#" class="menu-item" data-path="sales.html"><i class="fas fa-shopping-cart"></i> سجل المبيعات</a></li>
+            <li><a href="#" class="menu-item" data-path="sales.html"><i class="fas fa-shopping-cart"></i> نقطة البيع</a></li>
             <li><a href="#" class="menu-item" data-path="customers.html"><i class="fas fa-users"></i> إدارة العملاء</a></li>
             <li><a href="#" class="menu-item" data-path="reports.html"><i class="fas fa-chart-pie"></i> التقارير</a></li>
             <li><a href="#" class="menu-item" data-path="settings.html"><i class="fas fa-cogs"></i> الإعدادات</a></li>
@@ -462,7 +462,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-        // Your web app's Firebase configuration (مهم جداً أن تكون هنا أيضاً)
         const firebaseConfig = {
             apiKey: "AIzaSyC5ls-rPdJ65x5BoMGwAOpdcPtD585C2ys",
             authDomain: "pharmacy-inventory-bf04a.firebaseapp.com",
@@ -473,34 +472,30 @@
             measurementId: "G-ZGC9EQ55SL"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        // جعل تطبيق Firebase متاحاً للصفحات المحملة
-        window.firebaseApp = app;
+        window.firebaseApp = app; // لجعل تطبيق Firebase متاحاً للصفحات المحملة
 
-        // العناصر الأساسية في الصفحة
         const logoutButton = document.getElementById('logoutButton');
         const menuItems = document.querySelectorAll('.menu-item');
         const contentArea = document.getElementById('content-area');
         const loadingIndicator = document.getElementById('loading-indicator');
 
-        // حماية الصفحة: التحقق من حالة المصادقة
         onAuthStateChanged(auth, (user) => {
             if (!user) {
-                window.location.href = 'index.html'; // إعادة توجيه لصفحة تسجيل الدخول
+                window.location.href = 'index.html';
             } else {
-                // لو المستخدم مسجل دخول، قم بتحميل لوحة التحكم الافتراضية
-                // تأكد أن هذا يتم مرة واحدة فقط عند التحميل الأولي
-                if (!contentArea.dataset.loaded) { // منع إعادة التحميل عند التنقل
+                if (!contentArea.dataset.loaded) {
                     const initialPath = document.querySelector('.menu-item.active').dataset.path;
                     loadContent(initialPath);
                     contentArea.dataset.loaded = 'true';
                 }
+                // هنا يمكننا جلب دور المستخدم (role) وتخزينه في window.currentUserRole
+                // لتستخدمه الصفحات الفرعية للتحكم في الأمان على مستوى الواجهة
+                // (يتطلب حقل role في مستندات المستخدمين في Firestore)
             }
         });
 
-        // وظيفة تسجيل الخروج
         logoutButton.addEventListener('click', async (e) => {
             e.preventDefault();
             try {
@@ -513,10 +508,9 @@
             }
         });
 
-        // وظيفة تحميل المحتوى ديناميكياً
-        async function loadContent(path) {
-            loadingIndicator.style.display = 'flex'; // إظهار مؤشر التحميل
-            contentArea.innerHTML = ''; // مسح المحتوى الحالي
+        window.loadContent = async function(path) { // جعل الدالة عامة
+            loadingIndicator.style.display = 'flex';
+            contentArea.innerHTML = '';
 
             try {
                 const response = await fetch(path);
@@ -525,15 +519,13 @@
                 }
                 const html = await response.text();
 
-                // استخراج محتوى الـ <body> فقط من الملف المحمل
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
                 const loadedBodyContent = doc.body.innerHTML;
 
                 contentArea.innerHTML = loadedBodyContent;
 
-                // الآن، يجب تنفيذ أي سكربتات داخل المحتوى المحمل
-                // نستخدم setTimeout لضمان أن العناصر DOM قد تم تحميلها بالكامل قبل محاولة الوصول إليها
+                // تنفيذ السكربتات الموجودة داخل المحتوى المحمل
                 setTimeout(() => {
                     const scripts = contentArea.querySelectorAll('script');
                     scripts.forEach(oldScript => {
@@ -542,7 +534,7 @@
                         newScript.textContent = oldScript.textContent;
                         oldScript.parentNode.replaceChild(newScript, oldScript);
                     });
-                }, 0); // يؤجل التنفيذ قليلاً للسماح بتحميل DOM
+                }, 0);
 
             } catch (error) {
                 console.error("خطأ في تحميل المحتوى:", error);
@@ -551,38 +543,9 @@
                                            <p>الرجاء التأكد من وجود الملف "${path}" والاتصال بالإنترنت.</p>
                                         </div>`;
             } finally {
-                loadingIndicator.style.display = 'none'; // إخفاء مؤشر التحميل
+                loadingIndicator.style.display = 'none';
             }
         }
-
-        // وظيفة تبديل الأقسام في لوحة التحكم
-        menuItems.forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                const targetPath = item.dataset.path;
-
-                // إزالة التفعيل من جميع عناصر القائمة
-                menuItems.forEach(menu => menu.classList.remove('active'));
-
-                // تفعيل العنصر المستهدف
-                item.classList.add('active');
-
-                // تحميل المحتوى الجديد
-                loadContent(targetPath);
-            });
-        });
-
-        // يتم الآن استدعاء loadContent داخل onAuthStateChanged بعد التحقق من تسجيل الدخول
-        // لمنع التحميل المزدوج، أضفت dataset.loaded
-        // (لا حاجة لـ DOMContentLoaded منفصل هنا لأن onAuthStateChanged يقوم بالمهمة)
-        // إذا كنت تريد أن يتم التحميل الأول حتى بدون تسجيل دخول (للتجربة)،
-        // يمكنك تفعيل هذا الكود مؤقتاً:
-        /*
-        document.addEventListener('DOMContentLoaded', () => {
-            const initialPath = document.querySelector('.menu-item.active').dataset.path;
-            loadContent(initialPath);
-        });
-        */
     </script>
 </body>
 </html>
