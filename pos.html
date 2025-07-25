@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نقطة البيع - شيخ العرب</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #0d6efd;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 30px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .search-bar {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    input, select, button {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    #saleTable {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #e9f0fb;
+    }
+
+    #reader {
+      margin-top: 15px;
+      width: 100%;
+    }
+
+    .totals {
+      margin-top: 20px;
+      text-align: left;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <i class="fas fa-cash-register"></i> نقطة البيع - شيخ العرب
+  </header>
+
+  <div class="container">
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="ابحث عن منتج بالاسم أو الباركود">
+      <button onclick="startScan()">📷 مسح باركود</button>
+    </div>
+
+    <div id="reader"></div>
+
+    <table id="saleTable">
+      <thead>
+        <tr>
+          <th>المنتج</th>
+          <th>الكمية</th>
+          <th>السعر</th>
+          <th>الإجمالي</th>
+          <th>حذف</th>
+        </tr>
+      </thead>
+      <tbody id="cartBody">
+        <!-- السلة -->
+      </tbody>
+    </table>
+
+    <div class="totals">
+      <p>الإجمالي الكلي: <span id="totalAmount">0</span> جنيه</p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC5ls-rPdJ65x5BoMGwAOpdcPtD585C2ys",
+      authDomain: "pharmacy-inventory-bf04a.firebaseapp.com",
+      projectId: "pharmacy-inventory-bf04a",
+      storageBucket: "pharmacy-inventory-bf04a.firebasestorage.app",
+      messagingSenderId: "937788650384",
+      appId: "1:937788650384:web:6451225d00e648f3a0b915"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const searchInput = document.getElementById("searchInput");
+    const cartBody = document.getElementById("cartBody");
+    const totalAmount = document.getElementById("totalAmount");
+
+    let products = [];
+    let cart = [];
+
+    async function loadProducts() {
+      const snapshot = await getDocs(collection(db, "products"));
+      products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
+
+    function addToCart(product) {
+      const quantity = 1;
+      const total = product.salePrice * quantity;
+      cart.push({ ...product, quantity, total });
+      updateCart();
+    }
+
+    function updateCart() {
+      cartBody.innerHTML = "";
+      let total = 0;
+      cart.forEach((item, index) => {
+        total += item.total;
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${item.name}</td>
+          <td>${item.quantity}</td>
+          <td>${item.salePrice}</td>
+          <td>${item.total}</td>
+          <td><button onclick="removeFromCart(${index})">❌</button></td>
+        `;
+        cartBody.appendChild(row);
+      });
+      totalAmount.textContent = total.toFixed(2);
+    }
+
+    window.removeFromCart = function(index) {
+      cart.splice(index, 1);
+      updateCart();
+    }
+
+    searchInput.addEventListener("input", () => {
+      const value = searchInput.value.trim();
+      const found = products.find(p => p.name.includes(value) || p.barcode === value);
+      if (found) addToCart(found);
+    });
+
+    window.startScan = function () {
+      const html5QrCode = new Html5Qrcode("reader");
+      Html5Qrcode.getCameras().then(devices => {
+        if (devices && devices.length) {
+          const cameraId = devices[0].id;
+          html5QrCode.start(
+            cameraId,
+            { fps: 10, qrbox: 250 },
+            (decodedText) => {
+              searchInput.value = decodedText;
+              const found = products.find(p => p.barcode === decodedText);
+              if (found) addToCart(found);
+              html5QrCode.stop();
+            }
+          );
+        }
+      });
+    }
+
+    loadProducts();
+  </script>
+</body>
+</html>
