@@ -362,6 +362,195 @@
             transform: translateY(-2px);
         }
 
+        /* أنماط خاصة بالوحدات في POS */
+        .main-content .quantity-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .main-content .quantity-input-group label {
+            margin-bottom: 0;
+            flex-shrink: 0;
+        }
+        .main-content .quantity-input-group input[type="number"] {
+            width: 100px;
+            text-align: center;
+        }
+        .main-content .unit-display,
+        .main-content .unit-select {
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            color: var(--light-text);
+            flex-shrink: 0;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        /* أنماط قسم POS */
+        .main-content .pos-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr; /* قسم للبحث وقسم للسلة */
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .main-content .pos-section {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px var(--shadow-light);
+            height: fit-content;
+        }
+        .main-content .pos-section h3 {
+            font-size: 26px;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        .main-content .search-results-dropdown {
+            position: relative;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--card-bg);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.08);
+            z-index: 10;
+            display: none;
+        }
+        .main-content .search-result-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            text-align: right;
+            font-size: 15px;
+            color: var(--text-color);
+        }
+        .main-content .search-result-item:last-child {
+            border-bottom: none;
+        }
+        .main-content .search-result-item:hover {
+            background-color: #f0fdf0;
+        }
+        .main-content .selected-product-details {
+            background-color: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            text-align: right;
+            display: none;
+        }
+        .main-content .selected-product-details p {
+            margin: 5px 0;
+            font-size: 16px;
+            color: var(--text-color);
+        }
+        .main-content .add-to-cart-btn,
+        .main-content .complete-sale-btn,
+        .main-content .clear-cart-btn {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        .main-content .add-to-cart-btn i,
+        .main-content .complete-sale-btn i,
+        .main-content .clear-cart-btn i {
+            margin-left: 10px;
+        }
+        .main-content .cart-summary {
+            background-color: #f8fcf8;
+            border: 1px solid #e8f5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            margin-bottom: 30px;
+            text-align: right;
+        }
+        .main-content .cart-summary p, .main-content .cart-summary h3 {
+            margin: 10px 0;
+            color: var(--text-color);
+            font-size: 18px;
+        }
+        .main-content .cart-summary h3 {
+            font-size: 24px;
+            color: var(--secondary-color);
+            font-weight: 700;
+            margin-top: 20px;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 15px;
+        }
+        .main-content .cart-summary input[type="number"] {
+            width: 100px;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            text-align: left;
+            margin-right: 10px;
+        }
+
+        /* أنماط قسم إدارة العملاء */
+        .main-content .customer-form-container {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px var(--shadow-light);
+            margin-bottom: 40px;
+        }
+        .main-content .customer-form-container h3 {
+            font-size: 28px;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        /* أنماط التقارير */
+        .main-content .report-section {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px var(--shadow-light);
+            margin-bottom: 40px;
+        }
+        .main-content .report-section h3 {
+            font-size: 26px;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        /* أنماط الماسح الضوئي (مشتركة لمنتجات و POS) */
+        .main-content #scannerContainer {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            display: none; /* مخفية مبدئياً */
+            margin-top: 20px;
+        }
+        .main-content #reader {
+            width: 100%;
+            max-width: 400px;
+            margin: auto;
+        }
+        .main-content #stopScannerBtn {
+            width: 100%;
+            margin-top: 10px;
+            background-color: var(--danger-color);
+            color: white;
+        }
+        .main-content #stopScannerBtn:hover {
+            background-color: #b71c1c;
+        }
+
         /* تعديلات للهواتف */
         @media (max-width: 768px) {
             .sidebar {
@@ -432,6 +621,12 @@
                 padding: 12px;
                 font-size: 14px;
             }
+            .main-content .pos-container {
+                grid-template-columns: 1fr;
+            }
+            .main-content .cart-summary input[type="number"] {
+                width: 80px;
+            }
         }
     </style>
 </head>
@@ -481,18 +676,42 @@
         const contentArea = document.getElementById('content-area');
         const loadingIndicator = document.getElementById('loading-indicator');
 
+        // متغير لتخزين الدالة الحالية التي يتم تنفيذها عند تحميل محتوى جديد
+        // هذا ضروري لإيقاف أي عمليات مستمرة (مثل ماسح الباركود) عند التنقل
+        let currentContentScriptCleanup = null;
+
         onAuthStateChanged(auth, (user) => {
             if (!user) {
                 window.location.href = 'index.html';
             } else {
+                // منع التحميل المزدوج عند أول دخول
                 if (!contentArea.dataset.loaded) {
                     const initialPath = document.querySelector('.menu-item.active').dataset.path;
-                    loadContent(initialPath);
+                    window.loadContent(initialPath); // استخدم window.loadContent
                     contentArea.dataset.loaded = 'true';
                 }
-                // هنا يمكننا جلب دور المستخدم (role) وتخزينه في window.currentUserRole
-                // لتستخدمه الصفحات الفرعية للتحكم في الأمان على مستوى الواجهة
-                // (يتطلب حقل role في مستندات المستخدمين في Firestore)
+                // هنا يمكننا جلب دور المستخدم (role) من Firestore وتخزينه في window.currentUserRole
+                // هذا يتطلب وجود مجموعة 'users' في Firestore مع حقل 'role' لكل مستخدم
+                // مثال (يحتاج Firestore SDK هنا أو دالة في ملف منفصل):
+                /*
+                import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+                const db = getFirestore(app);
+                async function fetchUserRole(uid) {
+                    try {
+                        const userDoc = await getDoc(doc(db, 'users', uid));
+                        if (userDoc.exists()) {
+                            window.currentUserRole = userDoc.data().role || 'employee'; // الافتراضي 'موظف'
+                            console.log("User role:", window.currentUserRole);
+                        } else {
+                            window.currentUserRole = 'employee';
+                        }
+                    } catch (error) {
+                        console.error("Error fetching user role:", error);
+                        window.currentUserRole = 'employee';
+                    }
+                }
+                fetchUserRole(user.uid);
+                */
             }
         });
 
@@ -508,9 +727,17 @@
             }
         });
 
-        window.loadContent = async function(path) { // جعل الدالة عامة
+        // جعل الدالة loadContent عامة ومتاحة للصفحات المحملة
+        window.loadContent = async function(path) {
             loadingIndicator.style.display = 'flex';
-            contentArea.innerHTML = '';
+            
+            // 1. تنظيف السكربت السابق إذا كان موجوداً
+            if (currentContentScriptCleanup && typeof currentContentScriptCleanup === 'function') {
+                currentContentScriptCleanup();
+                currentContentScriptCleanup = null;
+            }
+
+            contentArea.innerHTML = ''; // مسح المحتوى الحالي
 
             try {
                 const response = await fetch(path);
@@ -519,22 +746,35 @@
                 }
                 const html = await response.text();
 
+                // استخراج محتوى الـ <body> فقط من الملف المحمل
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
                 const loadedBodyContent = doc.body.innerHTML;
 
                 contentArea.innerHTML = loadedBodyContent;
 
-                // تنفيذ السكربتات الموجودة داخل المحتوى المحمل
+                // 2. إعادة تنفيذ السكربتات الجديدة
+                // استخدام setTimeout لضمان أن عناصر DOM الجديدة قد تم تحميلها بالكامل قبل محاولة الوصول إليها
                 setTimeout(() => {
                     const scripts = contentArea.querySelectorAll('script');
                     scripts.forEach(oldScript => {
                         const newScript = document.createElement('script');
+                        // نسخ جميع سمات السكربت الأصلي (مثل type="module")
                         Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                        newScript.textContent = oldScript.textContent;
+                        newScript.textContent = oldScript.textContent; // نسخ المحتوى
                         oldScript.parentNode.replaceChild(newScript, oldScript);
                     });
-                }, 0);
+
+                    // إذا كان السكربت المحمل يعرّف دالة تنظيف (cleanup function)، احفظها
+                    // على سبيل المثال: window.currentScriptCleanup = myCleanupFunction;
+                    if (typeof window.currentContentScriptCleanup === 'function') {
+                        currentContentScriptCleanup = window.currentContentScriptCleanup;
+                        window.currentContentScriptCleanup = null; // مسحها لمنع التداخل
+                    } else {
+                        currentContentScriptCleanup = null; // لا توجد دالة تنظيف لهذا السكربت
+                    }
+
+                }, 0); // يؤجل التنفيذ قليلاً للسماح بتحميل DOM
 
             } catch (error) {
                 console.error("خطأ في تحميل المحتوى:", error);
@@ -546,6 +786,26 @@
                 loadingIndicator.style.display = 'none';
             }
         }
+
+        // وظيفة تبديل الأقسام في لوحة التحكم
+        menuItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetPath = item.dataset.path;
+
+                // إزالة التفعيل من جميع عناصر القائمة
+                menuItems.forEach(menu => menu.classList.remove('active'));
+
+                // تفعيل العنصر المستهدف
+                item.classList.add('active');
+
+                // تحميل المحتوى الجديد باستخدام الدالة العامة
+                window.loadContent(targetPath);
+            });
+        });
+
+        // تحميل المحتوى الافتراضي عند تحميل الصفحة لأول مرة (بعد المصادقة)
+        // يتم هذا الاستدعاء في onAuthStateChanged لمنع إعادة التحميل المزدوج
     </script>
 </body>
 </html>
