@@ -87,7 +87,7 @@
         .input-group input[type="email"],
         .input-group input[type="password"] {
             font-family: 'Cairo', sans-serif; /* استخدام خط كايرو لخانة الإدخال */
-            width: calc(100% - 28px); /* خصم البادينج من العرض (14px * 2) */
+            width: calc(100% - 28px); /* خصم البadمنج من العرض (14px * 2) */
             padding: 15px 14px;
             border: 1px solid #a8dadc; /* حدود بلون أزرق فاتح ومنعش */
             border-radius: 10px; /* زوايا مستديرة أكثر */
@@ -191,8 +191,7 @@
                 // لو تسجيل الدخول نجح:
                 console.log("تم تسجيل الدخول بنجاح!");
                 errorMessage.textContent = ''; // مسح أي رسائل خطأ سابقة
-                // قم بتغيير 'dashboard.html' إلى المسار الصحيح لصفحة لوحة التحكم الخاصة بك
-                window.location.href = 'dashboard.html';
+                window.location.href = 'dashboard.html'; // إعادة توجيه لصفحة لوحة التحكم
             } catch (error) {
                 // لو حصل خطأ في تسجيل الدخول:
                 let message = 'حدث خطأ غير متوقع. الرجاء المحاولة مرة أخرى.';
