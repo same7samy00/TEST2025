@@ -1,145 +1,337 @@
-<div class="dashboard-overview">
-    <header class="page-header">
-        <h1>مرحباً بك في لوحة تحكم شيخ العرب</h1>
-        <p>هنا يمكنك إدارة محل العطارة الخاص بك بكفاءة.</p>
-    </header>
-
-    <section class="overview-cards">
-        <div class="card">
-            <h3>إجمالي المنتجات</h3>
-            <p id="totalProducts">جاري التحميل...</p>
-        </div>
-        <div class="card">
-            <h3>مبيعات اليوم</h3>
-            <p id="dailySales">جاري التحميل...</p>
-        </div>
-        <div class="card">
-            <h3>منتجات على وشك النفاذ</h3>
-            <p id="lowStockProducts">جاري التحميل...</p>
-        </div>
-        <div class="card">
-            <h3>ديون العملاء الإجمالية</h3>
-            <p id="totalCustomerDebt">جاري التحميل...</p>
-        </div>
-    </section>
-
-    <section class="quick-actions">
-        <h2>إجراءات سريعة</h2>
-        <div class="actions-grid">
-            <button class="action-btn" onclick="window.loadContent('products.html')">إضافة منتج جديد</button>
-            <button class="action-btn" onclick="window.loadContent('sales.html')">تسجيل بيع</button>
-            <button class="action-btn" onclick="window.loadContent('products.html')">عرض المنتجات</button>
-            <button class="action-btn" onclick="window.loadContent('sales.html')">عرض المبيعات</button>
-        </div>
-    </section>
-
-    <section class="recent-activity">
-        <h2>الأنشطة الأخيرة</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>النوع</th>
-                    <th>التفاصيل</th>
-                    <th>التاريخ</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>إضافة منتج</td>
-                    <td>تمت إضافة "زيت اللوز الحلو"</td>
-                    <td>25 يوليو 2025</td>
-                </tr>
-                <tr>
-                    <td>بيع</td>
-                    <td>فاتورة #123456 بقيمة 350 جنيه</td>
-                    <td>25 يوليو 2025</td>
-                </tr>
-                <tr>
-                    <td>تعديل مخزون</td>
-                    <td>تحديث كمية "عشب الروزماري"</td>
-                    <td>24 يوليو 2025</td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
-</div>
-
-<script type="module">
-    import { getFirestore, collection, getDocs, query, where, Timestamp, sum } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
-
-    const db = getFirestore(window.firebaseApp);
-
-    const totalProductsElement = document.getElementById('totalProducts');
-    const dailySalesElement = document.getElementById('dailySales');
-    const lowStockProductsElement = document.getElementById('lowStockProducts');
-    const totalCustomerDebtElement = document.getElementById('totalCustomerDebt');
-
-    async function fetchDashboardData() {
-        // إجمالي المنتجات
-        try {
-            const productsSnapshot = await getDocs(collection(db, 'products'));
-            totalProductsElement.textContent = `${productsSnapshot.size} منتج`;
-        } catch (error) {
-            console.error("خطأ في جلب إجمالي المنتجات:", error);
-            totalProductsElement.textContent = 'خطأ!';
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظرة عامة - شيخ العرب</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* المتغيرات الأساسية (يمكن استيرادها من ملف CSS خارجي إذا كانت مشتركة على نطاق واسع) */
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #2e7d32;
+            --light-bg: #e0f2f7;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --light-text: #555;
+            --border-color: #ddd;
+            --shadow-light: rgba(0, 0, 0, 0.1);
         }
 
-        // منتجات على وشك النفاذ (الكمية أقل من 10)
-        try {
-            const q = query(collection(db, 'products'), where('quantity', '<', 10));
-            const lowStockSnapshot = await getDocs(q);
-            lowStockProductsElement.textContent = `${lowStockSnapshot.size} منتج`;
-        } catch (error) {
-            console.error("خطأ في جلب منتجات على وشك النفاذ:", error);
-            lowStockProductsElement.textContent = 'خطأ!';
+        /* هذه الأنماط مطبقة على المحتوى المحمل داخل main-content في dashboard.html */
+
+        .dashboard-overview {
+            /* قد تحتاج لبعض الأنماط الأساسية هنا إذا كانت الصفحة مستقلة تمامًا */
+            /* ولكن معظم الأنماط العامة ستأتي من dashboard.html */
         }
 
-        // مبيعات اليوم
-        const today = new Date();
-        const timezoneOffset = today.getTimezoneOffset() * 60000;
-        const localDate = new Date(today.getTime() - timezoneOffset);
-        const startOfDay = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate(), 0, 0, 0);
-        const endOfDay = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate(), 23, 59, 59);
-
-        const startOfDayTimestamp = Timestamp.fromDate(startOfDay);
-        const endOfDayTimestamp = Timestamp.fromDate(endOfDay);
-
-        try {
-            const salesQuery = query(
-                collection(db, 'sales'),
-                where('timestamp', '>=', startOfDayTimestamp),
-                where('timestamp', '<=', endOfDayTimestamp)
-            );
-            const salesSnapshot = await getDocs(salesQuery);
-            let totalSalesAmount = 0;
-            salesSnapshot.forEach(doc => {
-                const sale = doc.data();
-                if (sale.totalAmount) {
-                    totalSalesAmount += sale.totalAmount;
-                }
-            });
-            dailySalesElement.textContent = `${totalSalesAmount.toFixed(2)} جنيه`;
-        } catch (error) {
-            console.error("خطأ في جلب مبيعات اليوم:", error);
-            dailySalesElement.textContent = 'خطأ!';
+        .page-header {
+            margin-bottom: 50px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
         }
 
-        // ديون العملاء الإجمالية
-        try {
-            const customersSnapshot = await getDocs(collection(db, 'customers'));
-            let totalDebt = 0;
-            customersSnapshot.forEach(doc => {
-                const customer = doc.data();
-                if (customer.outstandingBalance) {
-                    totalDebt += customer.outstandingBalance;
-                }
-            });
-            totalCustomerDebtElement.textContent = `${totalDebt.toFixed(2)} جنيه`;
-        } catch (error) {
-            console.error("خطأ في جلب ديون العملاء:", error);
-            totalCustomerDebtElement.textContent = 'خطأ!';
+        .page-header h1 {
+            font-size: 42px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-weight: 700;
         }
-    }
 
-    fetchDashboardData();
-</script>
+        .page-header p {
+            font-size: 19px;
+            color: var(--light-text);
+            line-height: 1.6;
+        }
+
+        .overview-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px var(--shadow-light);
+            text-align: right;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-top: 5px solid var(--primary-color);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px var(--shadow-medium); /* استخدم متغير موجود من dashboard.html */
+        }
+
+        .card h3 {
+            font-size: 24px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .card p {
+            font-size: 36px;
+            color: var(--text-color);
+            font-weight: 700;
+        }
+
+        .quick-actions h2, .recent-activity h2 {
+            font-size: 32px;
+            color: var(--text-color);
+            margin-bottom: 25px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+        }
+
+        /* الأنماط العامة للأزرار والجداول في المحتوى تأتي من dashboard.html */
+        /* لكن يمكن تكرارها هنا للوضوح أو إذا كانت هذه الصفحة ستفتح بشكل منفصل */
+        .action-btn {
+            background-color: #66bb6a;
+            color: white;
+            padding: 18px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 10px var(--shadow-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Cairo', sans-serif; /* تأكيد الخط */
+        }
+
+        .action-btn:hover {
+            background-color: #5cb85c;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px var(--shadow-medium);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px var(--shadow-light);
+            margin-top: 30px;
+        }
+
+        table th, table td {
+            padding: 18px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        table th {
+            background-color: #e8f5e9;
+            color: var(--secondary-color);
+            font-size: 17px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        table tr:last-child td {
+            border-bottom: none;
+        }
+
+        table tbody tr:hover {
+            background-color: #f0fdf0;
+        }
+
+        /* تعديلات للهواتف (هذه الأنماط يجب أن تتوافق مع media queries في dashboard.html) */
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 32px;
+            }
+            .page-header p {
+                font-size: 16px;
+            }
+            .overview-cards {
+                grid-template-columns: 1fr;
+            }
+            .quick-actions h2, .recent-activity h2 {
+                font-size: 26px;
+            }
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+            table th, table td {
+                padding: 12px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-overview-content">
+        <header class="page-header">
+            <h1>مرحباً بك في لوحة تحكم شيخ العرب</h1>
+            <p>هنا يمكنك إدارة محل العطارة الخاص بك بكفاءة.</p>
+        </header>
+
+        <section class="overview-cards">
+            <div class="card">
+                <h3>إجمالي المنتجات</h3>
+                <p id="totalProducts">جاري التحميل...</p>
+            </div>
+            <div class="card">
+                <h3>مبيعات اليوم</h3>
+                <p id="dailySales">جاري التحميل...</p>
+            </div>
+            <div class="card">
+                <h3>منتجات على وشك النفاذ</h3>
+                <p id="lowStockProducts">جاري التحميل...</p>
+            </div>
+            <div class="card">
+                <h3>ديون العملاء الإجمالية</h3>
+                <p id="totalCustomerDebt">جاري التحميل...</p>
+            </div>
+        </section>
+
+        <section class="quick-actions">
+            <h2>إجراءات سريعة</h2>
+            <div class="actions-grid">
+                <button class="action-btn" onclick="window.loadContent('products.html'); return false;"><i class="fas fa-plus"></i> إضافة منتج جديد</button>
+                <button class="action-btn" onclick="window.loadContent('sales.html'); return false;"><i class="fas fa-cart-plus"></i> تسجيل بيع</button>
+                <button class="action-btn" onclick="window.loadContent('products.html'); return false;"><i class="fas fa-boxes"></i> عرض المنتجات</button>
+                <button class="action-btn" onclick="window.loadContent('sales.html'); return false;"><i class="fas fa-history"></i> عرض المبيعات</button>
+            </div>
+        </section>
+
+        <section class="recent-activity">
+            <h2>الأنشطة الأخيرة</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>النوع</th>
+                        <th>التفاصيل</th>
+                        <th>التاريخ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>إضافة منتج</td>
+                        <td>تمت إضافة "زيت اللوز الحلو"</td>
+                        <td>25 يوليو 2025</td>
+                    </tr>
+                    <tr>
+                        <td>بيع</td>
+                        <td>فاتورة #123456 بقيمة 350 جنيه</td>
+                        <td>25 يوليو 2025</td>
+                    </tr>
+                    <tr>
+                        <td>تعديل مخزون</td>
+                        <td>تحديث كمية "عشب الروزماري"</td>
+                        <td>24 يوليو 2025</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <script type="module">
+        import { getFirestore, collection, getDocs, query, where, Timestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+        // الحصول على تطبيق Firebase من النافذة العامة
+        const db = getFirestore(window.firebaseApp);
+
+        // عناصر البطاقات
+        const totalProductsElement = document.getElementById('totalProducts');
+        const dailySalesElement = document.getElementById('dailySales');
+        const lowStockProductsElement = document.getElementById('lowStockProducts');
+        const totalCustomerDebtElement = document.getElementById('totalCustomerDebt');
+
+        async function fetchDashboardData() {
+            // إجمالي المنتجات
+            try {
+                const productsSnapshot = await getDocs(collection(db, 'products'));
+                totalProductsElement.textContent = `${productsSnapshot.size} منتج`;
+            } catch (error) {
+                console.error("خطأ في جلب إجمالي المنتجات:", error);
+                totalProductsElement.textContent = 'خطأ!';
+            }
+
+            // منتجات على وشك النفاذ (الكمية أقل من 10)
+            try {
+                const q = query(collection(db, 'products'), where('quantity', '<', 10));
+                const lowStockSnapshot = await getDocs(q);
+                lowStockProductsElement.textContent = `${lowStockSnapshot.size} منتج`;
+            } catch (error) {
+                console.error("خطأ في جلب منتجات على وشك النفاذ:", error);
+                lowStockProductsElement.textContent = 'خطأ!';
+            }
+
+            // مبيعات اليوم
+            const today = new Date();
+            // لضبط الوقت بداية اليوم بتوقيت القاهرة (EEST)
+            const timezoneOffset = today.getTimezoneOffset() * 60000; // Offset in milliseconds
+            const localDate = new Date(today.getTime() - timezoneOffset); // Convert to local time
+            const startOfDay = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate(), 0, 0, 0);
+            const endOfDay = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate(), 23, 59, 59, 999); // شامل نهاية اليوم
+
+            // تحويل توقيتات البداية والنهاية إلى Firestore Timestamps
+            const startOfDayTimestamp = Timestamp.fromDate(startOfDay);
+            const endOfDayTimestamp = Timestamp.fromDate(endOfDay);
+
+            try {
+                const salesQuery = query(
+                    collection(db, 'sales'),
+                    where('timestamp', '>=', startOfDayTimestamp),
+                    where('timestamp', '<=', endOfDayTimestamp)
+                );
+                const salesSnapshot = await getDocs(salesQuery);
+                let totalSalesAmount = 0;
+                salesSnapshot.forEach(doc => {
+                    const sale = doc.data();
+                    if (sale.totalAmount) {
+                        totalSalesAmount += sale.totalAmount;
+                    }
+                });
+                dailySalesElement.textContent = `${totalSalesAmount.toFixed(2)} جنيه`;
+            } catch (error) {
+                console.error("خطأ في جلب مبيعات اليوم:", error);
+                dailySalesElement.textContent = 'خطأ!';
+            }
+
+            // ديون العملاء الإجمالية
+            try {
+                const customersSnapshot = await getDocs(collection(db, 'customers'));
+                let totalDebt = 0;
+                customersSnapshot.forEach(doc => {
+                    const customer = doc.data();
+                    if (customer.outstandingBalance && customer.outstandingBalance > 0) { // فقط الديون الإيجابية
+                        totalDebt += customer.outstandingBalance;
+                    }
+                });
+                totalCustomerDebtElement.textContent = `${totalDebt.toFixed(2)} جنيه`;
+            } catch (error) {
+                console.error("خطأ في جلب ديون العملاء:", error);
+                totalCustomerDebtElement.textContent = 'خطأ!';
+            }
+        }
+
+        // استدعاء دالة جلب البيانات عند تحميل الصفحة
+        fetchDashboardData();
+
+        // وظيفة التنظيف عند مغادرة الصفحة (مهمة للمحافظة على موارد المتصفح)
+        window.currentContentScriptCleanup = () => {
+            console.log("Cleanup for dashboard-overview.html");
+            // لا توجد listeners محددة أو موارد تحتاج إلى إيقاف هنا
+        };
+    </script>
+</body>
+</html>
