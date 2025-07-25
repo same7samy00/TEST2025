@@ -172,7 +172,10 @@ async function loadProductsContent() {
         <div class="input-group mb-3">
             <input type="text" class="form-control" id="productSearchInput" placeholder="ابحث بالاسم أو الباركود...">
             <button class="btn btn-outline-secondary" type="button" id="productSearchBtn"><i class="bi bi-search"></i> بحث</button>
+            <button class="btn btn-info" type="button" id="scanBarcodeBtn"><i class="bi bi-qr-code-scan"></i> مسح باركود</button>
         </div>
+        <div id="scanner-container" style="width:100%; max-width:400px; display:none; margin: 10px auto;"></div>
+
         <button class="btn btn-primary mb-3" id="addProductBtn"><i class="bi bi-plus-lg"></i> إضافة منتج جديد</button>
         <div class="table-responsive">
             <table class="table table-striped table-hover">
@@ -205,9 +208,77 @@ async function loadProductsContent() {
             fetchProducts(document.getElementById('productSearchInput').value);
         }
     });
+    document.getElementById('scanBarcodeBtn').addEventListener('click', startBarcodeScanner); // NEW: Barcode Scanner Button
 
     await fetchProducts(); // Fetch all products initially
 }
+
+// Global variable for scanner
+let html5QrCodeScanner = null;
+
+async function startBarcodeScanner() {
+    const scannerContainer = document.getElementById('scanner-container');
+    scannerContainer.style.display = 'block'; // Show scanner container
+    scannerContainer.innerHTML = '<div id="reader" style="width: 100%;"></div><button class="btn btn-danger mt-2" id="stopScannerBtn">إيقاف الماسح</button>';
+
+    if (!html5QrCodeScanner) {
+        html5QrCodeScanner = new Html5Qrcode("reader");
+    }
+
+    const qrboxFunction = function(viewfinderWidth, viewfinderHeight) {
+        let minEdgePercentage = 0.7; // 70% of the narrower edge
+        let minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
+        let qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
+        return {
+            width: qrboxSize,
+            height: qrboxSize
+        };
+    };
+
+    html5QrCodeScanner.start(
+        { facingMode: "environment" }, // Prefer rear camera
+        {
+            fps: 10,    // Frames per second
+            qrbox: qrboxFunction, // Make QR box responsive
+            // If you want to use front camera: { facingMode: "user" }
+        },
+        (decodedText, decodedResult) => {
+            // on success callback
+            console.log(`Scan result: ${decodedText}`, decodedResult);
+            document.getElementById('productSearchInput').value = decodedText; // Fill search input
+            fetchProducts(decodedText); // Search product automatically
+            stopBarcodeScanner(); // Stop scanner after successful scan
+        },
+        (errorMessage) => {
+            // parse error, ideally ignore it.
+            // console.warn(`QR Code no longer in scan region. ${errorMessage}`);
+        }
+    )
+    .catch((err) => {
+        // Start failed, usually camera permission issue
+        console.error(`Unable to start scanning: ${err}`);
+        alert(`لا يمكن بدء الماسح الضوئي. تأكد من إعطاء إذن الكاميرا. الخطأ: ${err.message}`);
+        stopBarcodeScanner(); // Ensure UI cleans up
+    });
+
+    document.getElementById('stopScannerBtn').addEventListener('click', stopBarcodeScanner);
+}
+
+function stopBarcodeScanner() {
+    if (html5QrCodeScanner && html5QrCodeScanner.is ).is ) && typeof html5QrCodeScanner.stop === 'function') {
+        html5QrCodeScanner.stop().then((ignore) => {
+            console.log("Scanner stopped.");
+            document.getElementById('scanner-container').style.display = 'none'; // Hide scanner
+            document.getElementById('scanner-container').innerHTML = ''; // Clear scanner content
+        }).catch((err) => {
+            console.error("Error stopping scanner:", err);
+        });
+    } else {
+        document.getElementById('scanner-container').style.display = 'none'; // Hide scanner
+        document.getElementById('scanner-container').innerHTML = ''; // Clear scanner content
+    }
+}
+
 
 async function fetchProducts(searchTerm = '') {
     const productsTableBody = document.getElementById('productsTableBody');
@@ -219,23 +290,12 @@ async function fetchProducts(searchTerm = '') {
     let q;
 
     if (searchTerm) {
-        // Simple search: filter by name OR barcode
-        // Firestore doesn't support OR queries directly across different fields easily without complex indexing/Cloud Functions
-        // For simplicity, we'll fetch all and filter client-side OR use 'where' for one field.
-        // A more robust solution might use a dedicated search index (e.g., Algolia) or Cloud Functions.
-        // Here, we'll try a basic starts-with query on 'name' for demonstration
-        // For barcode, an exact match is usually expected.
-        
-        q = query(productsRef, orderBy("name"), startAt(searchTerm), endAt(searchTerm + '\uf8ff')); // Search by name (case-sensitive)
-        // You might need to refine this for case-insensitivity or full-text search
-        // For barcode, you'd add: where("barcode", "==", searchTerm)
-        // But combining OR conditions is tricky without Cloud Functions/advanced techniques.
-        // For now, let's fetch by name (startsWith) or exact barcode match.
-        // We'll adjust the query based on if the searchTerm looks like a barcode or name.
-        if (searchTerm.length > 5 && !isNaN(searchTerm)) { // Heuristic for barcode
-             q = query(productsRef, where("barcode", "==", searchTerm));
+        const isBarcodeSearch = /^\d+$/.test(searchTerm) && searchTerm.length >= 8; // Heuristic for barcode (e.g., EAN-13 has 13 digits)
+        if (isBarcodeSearch) {
+            q = query(productsRef, where("barcode", "==", searchTerm));
         } else {
-             q = query(productsRef, orderBy("name"), where("name", ">=", searchTerm), where("name", "<=", searchTerm + '\uf8ff'));
+            // For text search (name), use startAt/endAt for "starts with" functionality
+            q = query(productsRef, orderBy("name"), where("name", ">=", searchTerm), where("name", "<=", searchTerm + '\uf8ff'));
         }
 
     } else {
@@ -264,13 +324,12 @@ async function fetchProducts(searchTerm = '') {
             const batchesRef = collection(db, `products/${productId}/batches`);
             const batchesSnapshot = await getDocs(batchesRef);
             
-            let productBatchesHtml = ''; // لجمع تفاصيل الدفعات للعرض
             batchesSnapshot.forEach(batchDoc => {
                 const batch = batchDoc.data();
                 const batchId = batchDoc.id;
                 totalQuantity += batch.quantity || 0;
 
-                const expiryDate = new Date(batch.expiryDate); // تحويل تاريخ انتهاء الصلاحية إلى كائن Date
+                const expiryDate = new Date(batch.expiryDate + 'T00:00:00'); // Add T00:00:00 for correct date parsing
 
                 // تنبيهات الصلاحية
                 if (expiryDate < today) {
@@ -280,17 +339,6 @@ async function fetchProducts(searchTerm = '') {
                     stockExpiryAlertsList.innerHTML += `<li class="list-group-item list-group-item-warning">المنتج ${product.name} - الدفعة ${batch.batchNumber} قريبة من الانتهاء (ينتهي في: ${batch.expiryDate}). الكمية: ${batch.quantity}</li>`;
                     hasAlerts = true;
                 }
-                
-                // عرض تفاصيل الدفعات في جدول المنتجات
-                productBatchesHtml += `
-                    <div class="d-flex justify-content-between align-items-center mt-2">
-                        <span>الدفعة: ${batch.batchNumber} | الكمية: ${batch.quantity} | ينتهي في: ${batch.expiryDate}</span>
-                        <div>
-                            <button class="btn btn-sm btn-outline-info edit-batch-btn" data-product-id="${productId}" data-batch-id="${batchId}" data-product-name="${product.name}"><i class="bi bi-pencil-square"></i></button>
-                            <button class="btn btn-sm btn-outline-danger delete-batch-btn" data-product-id="${productId}" data-batch-id="${batchId}"><i class="bi bi-trash"></i></button>
-                        </div>
-                    </div>
-                `;
             });
             
             // تنبيهات الكمية المنخفضة
@@ -352,7 +400,10 @@ function showAddProductForm() {
             <div class="mb-3">
                 <label for="productBarcode" class="form-label">الباركود:</label>
                 <input type="text" class="form-control" id="productBarcode">
+                <button class="btn btn-sm btn-outline-secondary mt-1" id="scanBarcodeInputBtn"><i class="bi bi-qr-code-scan"></i> مسح الباركود</button>
             </div>
+            <div id="barcode-scanner-input-container" style="width:100%; max-width:300px; display:none; margin: 5px auto;"></div>
+
             <div class="mb-3">
                 <label for="productPrice" class="form-label">السعر (بيع):</label>
                 <input type="number" class="form-control" id="productPrice" step="0.01" required>
@@ -381,7 +432,58 @@ function showAddProductForm() {
 
     document.getElementById('saveProductBtn').addEventListener('click', saveProduct);
     document.getElementById('cancelProductBtn').addEventListener('click', loadProductsContent);
+    document.getElementById('scanBarcodeInputBtn').addEventListener('click', () => startBarcodeScannerForInput('productBarcode', 'barcode-scanner-input-container'));
+
 }
+
+// Global variable to hold specific scanner for input fields
+let currentHtml5QrCodeScannerForInput = null;
+
+function startBarcodeScannerForInput(targetInputId, scannerDivId) {
+    const scannerContainer = document.getElementById(scannerDivId);
+    scannerContainer.style.display = 'block';
+    scannerContainer.innerHTML = `<div id="${scannerDivId}-reader" style="width: 100%;"></div><button class="btn btn-danger mt-2" id="stopScannerInputBtn">إيقاف الماسح</button>`;
+
+    if (!currentHtml5QrCodeScannerForInput) {
+        currentHtml5QrCodeScannerForInput = new Html5Qrcode(`${scannerDivId}-reader`);
+    }
+
+    currentHtml5QrCodeScannerForInput.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 }, // Fixed qrbox size for input
+        (decodedText, decodedResult) => {
+            document.getElementById(targetInputId).value = decodedText;
+            stopBarcodeScannerForInput(scannerDivId); // Stop after scan
+        },
+        (errorMessage) => {
+            // console.warn(`QR Code no longer in scan region. ${errorMessage}`);
+        }
+    )
+    .catch((err) => {
+        console.error(`Unable to start scanning for input: ${err}`);
+        alert(`لا يمكن بدء الماسح الضوئي. تأكد من إعطاء إذن الكاميرا. الخطأ: ${err.message}`);
+        stopBarcodeScannerForInput(scannerDivId);
+    });
+
+    document.getElementById('stopScannerInputBtn').addEventListener('click', () => stopBarcodeScannerForInput(scannerDivId));
+}
+
+function stopBarcodeScannerForInput(scannerDivId) {
+    if (currentHtml5QrCodeScannerForInput && currentHtml5QrCodeScannerForInput.isScanning) {
+        currentHtml5QrCodeScannerForInput.stop().then((ignore) => {
+            console.log("Input Scanner stopped.");
+            document.getElementById(scannerDivId).style.display = 'none';
+            document.getElementById(scannerDivId).innerHTML = '';
+        }).catch((err) => {
+            console.error("Error stopping input scanner:", err);
+        });
+    } else {
+        document.getElementById(scannerDivId).style.display = 'none';
+        document.getElementById(scannerDivId).innerHTML = '';
+    }
+    currentHtml5QrCodeScannerForInput = null; // Reset for next use
+}
+
 
 async function saveProduct() {
     const productId = document.getElementById('productId') ? document.getElementById('productId').value : null; 
@@ -453,7 +555,10 @@ async function showEditProductForm(productId) {
                 <div class="mb-3">
                     <label for="productBarcode" class="form-label">الباركود:</label>
                     <input type="text" class="form-control" id="productBarcode" value="${product.barcode || ''}">
+                    <button class="btn btn-sm btn-outline-secondary mt-1" id="scanBarcodeInputBtn"><i class="bi bi-qr-code-scan"></i> مسح الباركود</button>
                 </div>
+                <div id="barcode-scanner-input-container" style="width:100%; max-width:300px; display:none; margin: 5px auto;"></div>
+
                 <div class="mb-3">
                     <label for="productPrice" class="form-label">السعر (بيع):</label>
                     <input type="number" class="form-control" id="productPrice" step="0.01" value="${product.price}" required>
@@ -482,6 +587,7 @@ async function showEditProductForm(productId) {
 
         document.getElementById('saveProductBtn').addEventListener('click', saveProduct);
         document.getElementById('cancelProductBtn').addEventListener('click', loadProductsContent);
+        document.getElementById('scanBarcodeInputBtn').addEventListener('click', () => startBarcodeScannerForInput('productBarcode', 'barcode-scanner-input-container'));
 
     } catch (error) {
         console.error("Error loading product for edit:", error);
@@ -603,185 +709,4 @@ async function viewBatches(productId, productName) {
         <button class="btn btn-secondary mt-3" id="backToProductsBtn">العودة لقائمة المنتجات</button>
     `;
 
-    document.getElementById('addBatchFromViewBtn').addEventListener('click', (e) => showAddBatchForm(e.target.dataset.id, e.target.dataset.name));
-    document.getElementById('backToProductsBtn').addEventListener('click', loadProductsContent);
-
-    const batchesTableBody = document.getElementById('batchesTableBody');
-    batchesTableBody.innerHTML = '';
-
-    try {
-        const batchesRef = collection(db, `products/${productId}/batches`);
-        const q = query(batchesRef, orderBy("expiryDate", "asc")); // ترتيب الدفعات حسب تاريخ الانتهاء
-        const snapshot = await getDocs(q);
-
-        if (snapshot.empty) {
-            batchesTableBody.innerHTML = '<tr><td colspan="5" class="text-center">لا توجد دفعات لهذا المنتج.</td></tr>';
-            return;
-        }
-
-        snapshot.forEach(batchDoc => {
-            const batch = batchDoc.data();
-            const batchId = batchDoc.id;
-
-            batchesTableBody.innerHTML += `
-                <tr>
-                    <td>${batch.batchNumber}</td>
-                    <td>${batch.expiryDate}</td>
-                    <td>${batch.quantity}</td>
-                    <td>${batch.purchaseDate}</td>
-                    <td>
-                        <button class="btn btn-sm btn-info edit-batch-btn" data-product-id="${productId}" data-batch-id="${batchId}" data-product-name="${productName}"><i class="bi bi-pencil-square"></i> تعديل</button>
-                        <button class="btn btn-sm btn-danger delete-batch-btn" data-product-id="${productId}" data-batch-id="${batchId}"><i class="bi bi-trash"></i> حذف</button>
-                    </td>
-                </tr>
-            `;
-        });
-
-        document.querySelectorAll('.edit-batch-btn').forEach(button => {
-            button.addEventListener('click', (e) => showEditBatchForm(e.target.dataset.productId, e.target.dataset.batchId, e.target.dataset.productName));
-        });
-        document.querySelectorAll('.delete-batch-btn').forEach(button => {
-            button.addEventListener('click', (e) => deleteBatch(e.target.dataset.productId, e.target.dataset.batchId));
-        });
-
-    } catch (error) {
-        console.error("Error fetching batches:", error);
-        batchesTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">حدث خطأ في جلب الدفعات.</td></tr>';
-    }
-}
-
-// عرض نموذج تعديل دفعة موجودة
-async function showEditBatchForm(productId, batchId, productName) {
-    try {
-        const batchDocRef = doc(db, `products/${productId}/batches`, batchId);
-        const batchDoc = await getDoc(batchDocRef);
-
-        if (!batchDoc.exists()) {
-            alert('الدفعة غير موجودة!');
-            viewBatches(productId, productName);
-            return;
-        }
-
-        const batch = batchDoc.data();
-        contentArea.innerHTML = `
-            <h2 class="text-center mb-4">تعديل دفعة لـ "${productName}"</h2>
-            <div class="card p-4 mx-auto" style="max-width: 500px;">
-                <input type="hidden" id="editBatchProductId" value="${productId}">
-                <input type="hidden" id="editBatchId" value="${batchId}">
-                <div class="mb-3">
-                    <label for="editBatchNumber" class="form-label">رقم الدفعة:</label>
-                    <input type="text" class="form-control" id="editBatchNumber" value="${batch.batchNumber}" required>
-                </div>
-                <div class="mb-3">
-                    <label for="editExpiryDate" class="form-label">تاريخ انتهاء الصلاحية:</label>
-                    <input type="date" class="form-control" id="editExpiryDate" value="${batch.expiryDate}" required>
-                </div>
-                <div class="mb-3">
-                    <label for="editBatchQuantity" class="form-label">الكمية:</label>
-                    <input type="number" class="form-control" id="editBatchQuantity" value="${batch.quantity}" required>
-                </div>
-                <div class="mb-3">
-                    <label for="editPurchaseDate" class="form-label">تاريخ الشراء:</label>
-                    <input type="date" class="form-control" id="editPurchaseDate" value="${batch.purchaseDate}" required>
-                </div>
-                <button id="updateBatchBtn" class="btn btn-success w-100">تحديث الدفعة</button>
-                <button class="btn btn-secondary w-100 mt-2" id="cancelEditBatchBtn" data-product-id="${productId}" data-product-name="${productName}">إلغاء</button>
-                <div id="batchFormError" class="alert alert-danger mt-3 d-none"></div>
-            </div>
-        `;
-
-        document.getElementById('updateBatchBtn').addEventListener('click', updateBatch);
-        document.getElementById('cancelEditBatchBtn').addEventListener('click', (e) => viewBatches(e.target.dataset.productId, e.target.dataset.productName));
-
-    } catch (error) {
-        console.error("Error loading batch for edit:", error);
-        alert(`خطأ في تحميل بيانات الدفعة: ${error.message}`);
-        viewBatches(productId, productName);
-    }
-}
-
-// تحديث دفعة موجودة
-async function updateBatch() {
-    const productId = document.getElementById('editBatchProductId').value;
-    const batchId = document.getElementById('editBatchId').value;
-    const productName = document.getElementById('cancelEditBatchBtn').dataset.productName; // للحصول على اسم المنتج للعودة
-    
-    const batchNumber = document.getElementById('editBatchNumber').value;
-    const expiryDate = document.getElementById('editExpiryDate').value;
-    const quantity = parseInt(document.getElementById('editBatchQuantity').value);
-    const purchaseDate = document.getElementById('editPurchaseDate').value;
-    const batchFormError = document.getElementById('batchFormError');
-
-    batchFormError.classList.add('d-none');
-
-    if (!batchNumber || !expiryDate || isNaN(quantity) || !purchaseDate || quantity <= 0) {
-        batchFormError.textContent = "جميع الحقول مطلوبة والكمية يجب أن تكون أكبر من صفر.";
-        batchFormError.classList.remove('d-none');
-        return;
-    }
-
-    try {
-        const batchDocRef = doc(db, `products/${productId}/batches`, batchId);
-        await updateDoc(batchDocRef, {
-            batchNumber: batchNumber,
-            expiryDate: expiryDate,
-            quantity: quantity,
-            purchaseDate: purchaseDate
-        });
-        alert('تم تحديث الدفعة بنجاح!');
-        viewBatches(productId, productName); // العودة إلى عرض الدفعات
-    } catch (error) {
-        console.error("Error updating batch:", error);
-        batchFormError.textContent = `خطأ في تحديث الدفعة: ${error.message}`;
-        batchFormError.classList.remove('d-none');
-    }
-}
-
-// حذف دفعة
-async function deleteBatch(productId, batchId) {
-    if (!confirm('هل أنت متأكد أنك تريد حذف هذه الدفعة؟')) {
-        return;
-    }
-    try {
-        await deleteDoc(doc(db, `products/${productId}/batches`, batchId));
-        alert('تم حذف الدفعة بنجاح!');
-        // بعد الحذف، نعود إلى قائمة المنتجات لتحديث الكميات الإجمالية
-        loadProductsContent(); 
-    } catch (error) {
-        console.error("Error deleting batch:", error);
-        alert(`خطأ في حذف الدفعة: ${error.message}`);
-    }
-}
-// ** نهاية محتوى صفحة "عرض الدفعات" **
-
-
-// --- 5. Other Module Loaders (Placeholder - صفحات ستُبنى لاحقاً) ---
-salesLink.addEventListener('click', (e) => { e.preventDefault(); if(auth.currentUser) loadSalesContent(); else alert('يرجى تسجيل الدخول.'); });
-customersLink.addEventListener('click', (e) => { e.preventDefault(); if(auth.currentUser) loadCustomersContent(); else alert('يرجى تسجيل الدخول.'); });
-reportsLink.addEventListener('click', (e) => { e.preventDefault(); if(auth.currentUser) loadReportsContent(); else alert('يرجى تسجيل الدخول.'); });
-
-function loadSalesContent() {
-    contentArea.innerHTML = `
-        <h2 class="text-center">إدارة المبيعات</h2>
-        <p>سيتم تطوير هذه الصفحة لاحقًا لتشمل نقطة البيع والعمليات.</p>
-    `;
-}
-
-function loadCustomersContent() {
-    contentArea.innerHTML = `
-        <h2 class="text-center">إدارة العملاء والديون</h2>
-        <p>سيتم تطوير هذه الصفحة لاحقًا لتشمل تسجيل العملاء وتتبع الديون والمدفوعات.</p>
-    `;
-}
-
-function loadReportsContent() {
-    contentArea.innerHTML = `
-        <h2 class="text-center">التقارير والإحصائيات</h2>
-        <p>سيتم تطوير هذه الصفحة لاحقًا لعرض تقارير المبيعات والمخزون والديون.</p>
-    `;
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    // onAuthStateChanged في Firebase/auth يستمع لحالة تسجيل الدخول
-    // ويقوم بتحميل الواجهة المناسبة (تسجيل دخول أو لوحة تحكم)
-});
+    document.getElementById('addBatchFromViewBtn').addEventListener('click', (e) => showAddBatchForm
