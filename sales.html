@@ -57,7 +57,7 @@
 </div>
 
 <script type="module">
-    // استيراد Firebase Firestore و Query Functions
+    // التعديل هنا: حذف 'batch' من قائمة الاستيراد
     import { getFirestore, collection, getDocs, query, where, doc, updateDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
     const db = getFirestore(window.firebaseApp); // استخدام تطبيق Firebase العام
@@ -258,8 +258,8 @@
         }
 
         try {
-            // 1. تحديث المخزون في Firestore
-            const batch = db.batch(); // استخدام Batch Write لضمان تنفيذ كل التحديثات أو لا شيء
+            // التعديل هنا: استخدام db.batch() مباشرة
+            const batch = db.batch(); // إنشاء دفعة كتابة
 
             for (const item of cart) {
                 const productRef = doc(db, 'products', item.id);
@@ -504,7 +504,10 @@
         width: 100%;
         margin-bottom: 15px;
     }
-    .complete-sale-btn i, .clear-cart-btn i {
+    .complete-sale-btn i {
+        margin-left: 10px;
+    }
+    .clear-cart-btn i {
         margin-left: 10px;
     }
 
