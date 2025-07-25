@@ -57,8 +57,8 @@
 </div>
 
 <script type="module">
-    // التعديل هنا: حذف 'batch' من قائمة الاستيراد
-    import { getFirestore, collection, getDocs, query, where, doc, updateDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+    // التعديل هنا: استيراد 'writeBatch'
+    import { getFirestore, collection, getDocs, query, where, doc, updateDoc, addDoc, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
     const db = getFirestore(window.firebaseApp); // استخدام تطبيق Firebase العام
 
@@ -258,8 +258,8 @@
         }
 
         try {
-            // التعديل هنا: استخدام db.batch() مباشرة
-            const batch = db.batch(); // إنشاء دفعة كتابة
+            // التعديل هنا: استخدام writeBatch(db) لإنشاء دفعة
+            const batch = writeBatch(db); // إنشاء دفعة كتابة
 
             for (const item of cart) {
                 const productRef = doc(db, 'products', item.id);
