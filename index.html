@@ -3,61 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة الصيدلية</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <title>تسجيل الدخول - إدارة محل عطارة</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">نظام الصيدلية الذكي</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#" id="dashboard-link">الرئيسية</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" id="products-link">المنتجات</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" id="sales-link">المبيعات</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" id="customers-link">العملاء والديون</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" id="reports-link">التقارير</a>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="#" id="login-link">تسجيل الدخول</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link d-none" href="#" id="logout-link">تسجيل الخروج</a>
-                        </li>
-                    </ul>
-                </div>
+    <div class="login-container">
+        <img src="logo.png" alt="شعار محل العطارة" class="logo"> <h2>تسجيل الدخول</h2>
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="email">البريد الإلكتروني:</label>
+                <input type="email" id="email" required>
             </div>
-        </nav>
+            <div class="input-group">
+                <label for="password">كلمة المرور:</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit">تسجيل الدخول</button>
+            <p id="errorMessage" class="error-message"></p>
+        </form>
+    </div>
 
-        <div class="container mt-4">
-            <h1 class="text-center mb-4">لوحة التحكم الرئيسية</h1>
-            <div id="auth-status" class="alert alert-info text-center" role="alert">
-                يرجى تسجيل الدخول.
-            </div>
-            <div id="content-area" class="card p-4">
-                <p>استخدم القائمة أعلاه للتنقل.</p>
-            </div>
-        </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-        <script type="module" src="js/firebase-init.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script type="module" src="js/main.js"></script>
-    </body>
-    </html>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC5ls-rPdJ65x5BoMGwAOpdcPtD585C2ys",
+            authDomain: "pharmacy-inventory-bf04a.firebaseapp.com",
+            projectId: "pharmacy-inventory-bf04a",
+            storageBucket: "pharmacy-inventory-bf04a.firebasestorage.app",
+            messagingSenderId: "937788650384",
+            appId: "1:937788650384:web:6451225d00e648f3a0b915",
+            measurementId: "G-ZGC9EQ55SL"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        const loginForm = document.getElementById('loginForm');
+        const errorMessage = document.getElementById('errorMessage');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); // منع إعادة تحميل الصفحة
+
+            const email = loginForm.email.value;
+            const password = loginForm.password.value;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                // لو تسجيل الدخول نجح:
+                console.log("تم تسجيل الدخول بنجاح!");
+                errorMessage.textContent = ''; // مسح أي رسائل خطأ سابقة
+                window.location.href = 'dashboard.html'; // إعادة توجيه لصفحة لوحة التحكم
+            } catch (error) {
+                // لو حصل خطأ في تسجيل الدخول:
+                let message = 'حدث خطأ غير متوقع. الرجاء المحاولة مرة أخرى.';
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        message = 'لا يوجد مستخدم بهذا البريد الإلكتروني.';
+                        break;
+                    case 'auth/wrong-password':
+                        message = 'كلمة المرور خاطئة.';
+                        break;
+                    case 'auth/invalid-email':
+                        message = 'صيغة البريد الإلكتروني غير صحيحة.';
+                        break;
+                    case 'auth/network-request-failed':
+                        message = 'لا يوجد اتصال بالإنترنت. يرجى التحقق من اتصالك.';
+                        break;
+                    default:
+                        message = 'حدث خطأ في تسجيل الدخول: ' + error.message;
+                        break;
+                }
+                errorMessage.textContent = message;
+                console.error("خطأ في تسجيل الدخول:", error.message);
+            }
+        });
+    </script>
+</body>
+</html>
