@@ -3,8 +3,9 @@
 // Import Firebase services from the initialization file
 import { db, auth } from "./firebase-init.js";
 // Import specific functions from Firebase SDKs that you'll use
+// (تأكد من استخدام نفس الإصدار في firebase-init.js)
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-import { collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, where, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+import { collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 
 // DOM Elements (عناصر الواجهة التي سنتعامل معها)
@@ -264,8 +265,9 @@ async function startBarcodeScanner() {
     document.getElementById('stopScannerBtn').addEventListener('click', stopBarcodeScanner);
 }
 
+// CORRECTED FUNCTION
 function stopBarcodeScanner() {
-    if (html5QrCodeScanner && html5QrCodeScanner.is ).is ) && typeof html5QrCodeScanner.stop === 'function') {
+    if (html5QrCodeScanner && html5QrCodeScanner.isScanning && typeof html5QrCodeScanner.stop === 'function') {
         html5QrCodeScanner.stop().then((ignore) => {
             console.log("Scanner stopped.");
             document.getElementById('scanner-container').style.display = 'none'; // Hide scanner
@@ -277,6 +279,7 @@ function stopBarcodeScanner() {
         document.getElementById('scanner-container').style.display = 'none'; // Hide scanner
         document.getElementById('scanner-container').innerHTML = ''; // Clear scanner content
     }
+    // No need to set html5QrCodeScanner = null here if it's reused for search
 }
 
 
@@ -597,7 +600,7 @@ async function deleteProduct(productId) {
         return;
     }
     try {
-        // Delete all sub-collections (batches) first
+        // Delete all sub-collections (batches/quantities) first
         const batchesRef = collection(db, `products/${productId}/batches`);
         const batchesSnapshot = await getDocs(batchesRef);
         const deleteBatchPromises = [];
@@ -617,7 +620,7 @@ async function deleteProduct(productId) {
 }
 
 
-// --- 4. Batch Management (إدارة الكميات - تبسيط الدفعات) ---
+// --- 4. Batch Management (إدارة الكميات المضافة للمنتج) ---
 function showAddBatchForm(productId, productName) {
     contentArea.innerHTML = `
         <h2 class="text-center mb-4">إضافة كمية لـ "${productName}"</h2>
@@ -700,7 +703,7 @@ async function viewBatches(productId, productName) {
         <button class="btn btn-secondary mt-3" id="backToProductsBtn">العودة لقائمة المنتجات</button>
     `;
 
-    document.getElementById('addBatchFromViewBtn').addEventListener('click', (e) => showAddBatchForm(e.target.dataset.id, e.target.dataset.name));
+    document.getElementById('addBatchFromViewBtn').addEventListener('click', (e) => showAddBatchForm(e.target.dataset.id || e.target.closest('button').dataset.id, e.target.dataset.name || e.target.closest('button').dataset.name));
     document.getElementById('backToProductsBtn').addEventListener('click', loadProductsContent);
 
     const batchesTableBody = document.getElementById('batchesTableBody');
@@ -727,7 +730,7 @@ async function viewBatches(productId, productName) {
                     <td>${batch.notes || 'لا يوجد'}</td>
                     <td>
                         <button class="btn btn-sm btn-info edit-batch-item-btn" data-product-id="${productId}" data-batch-id="${batchId}" data-product-name="${productName}"><i class="bi bi-pencil-square"></i> تعديل</button>
-                        <button class="btn btn-sm btn-danger delete-batch-item-btn" data-product-id="${productId}" data-batch-id="${batchId}"><i class="bi bi-trash"></i> حذف</button>
+                        <button class="btn btn-sm btn-danger delete-batch-item-btn" data-product-id="${productId}" data-batch-id="${batchId}" data-product-name="${productName}"><i class="bi bi-trash"></i> حذف</button>
                     </td>
                 </tr>
             `;
@@ -828,7 +831,7 @@ async function deleteBatchItem(productId, batchId, productName) {
     try {
         await deleteDoc(doc(db, `products/${productId}/batches`, batchId));
         alert('تم حذف الكمية بنجاح!');
-        viewBatches(productId, productName);
+        viewBatches(productId, productName); // العودة إلى عرض الكميات بعد الحذف
     } catch (error) {
         console.error("Error deleting batch item:", error);
         alert(`خطأ في حذف الكمية: ${error.message}`);
@@ -891,8 +894,10 @@ function loadReportsContent() {
 }
 
 // Initial load based on authentication status
-if (auth.currentUser) {
-    loadDashboard();
-} else {
-    showLoginForm();
-}
+document.addEventListener('DOMContentLoaded', () => {
+    if (auth.currentUser) {
+        loadDashboard();
+    } else {
+        showLoginForm();
+    }
+});
