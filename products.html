@@ -1,0 +1,236 @@
+<div class="products-management">
+    <header class="page-header">
+        <h1>إدارة المنتجات</h1>
+        <p>أضف، عدّل، أو احذف المنتجات من مخزون محل شيخ العرب.</p>
+    </header>
+
+    <div class="product-form-container">
+        <h3>أضف / عدّل منتج</h3>
+        <form id="productForm">
+            <input type="hidden" id="productId"> <div class="form-group">
+                <label for="productName">اسم المنتج:</label>
+                <input type="text" id="productName" required>
+            </div>
+            <div class="form-group">
+                <label for="productCategory">الفئة:</label>
+                <select id="productCategory" required>
+                    <option value="">اختر فئة</option>
+                    <option value="أعشاب">أعشاب</option>
+                    <option value="توابل">توابل</option>
+                    <option value="زيوت طبيعية">زيوت طبيعية</option>
+                    <option value="مستحضرات تجميل طبيعية">مستحضرات تجميل طبيعية</option>
+                    <option value="عسل ومشتقاته">عسل ومشتقاته</option>
+                    <option value="أخرى">أخرى</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="productUnit">وحدة القياس:</label>
+                <select id="productUnit" required>
+                    <option value="">اختر وحدة</option>
+                    <option value="قطعة">قطعة</option>
+                    <option value="كيلو جرام">كيلو جرام</option>
+                    <option value="جرام">جرام</option>
+                    <option value="لتر">لتر</option>
+                    <option value="مليلتر">مليلتر</option>
+                    <option value="حبة">حبة</option>
+                    <option value="علبة">علبة</option>
+                    <option value="متر">متر</option>
+                    <option value="كيس">كيس</option>
+                    <option value="مجموعة">مجموعة</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="productQuantity">الكمية المتاحة:</label>
+                <input type="number" id="productQuantity" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="sellingPrice">سعر البيع (للوحدة):</label>
+                <input type="number" id="sellingPrice" step="0.01" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="productDescription">الوصف:</label>
+                <textarea id="productDescription"></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">حفظ المنتج</button>
+                <button type="button" class="cancel-btn" id="cancelEdit">إلغاء</button>
+            </div>
+        </form>
+    </div>
+
+    <h2 style="text-align: right; margin-bottom: 25px; color: var(--text-color); border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">المنتجات المتوفرة</h2>
+    <p id="productsLoading" style="text-align: center; color: var(--light-text);">جاري تحميل المنتجات...</p>
+    <table id="productsTable">
+        <thead>
+            <tr>
+                <th>اسم المنتج</th>
+                <th>الفئة</th>
+                <th>الكمية</th>
+                <th>الوحدة</th>
+                <th>سعر البيع</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            </tbody>
+    </table>
+</div>
+
+<script type="module">
+    // بما أننا داخل ملف يتم تحميله ديناميكياً، سنستخدم window.firebaseApp الذي تم تعريفه في dashboard.html
+    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+    const db = getFirestore(window.firebaseApp); // استخدام تطبيق Firebase العام
+
+    // عناصر نموذج المنتجات
+    const productForm = document.getElementById('productForm');
+    const productIdInput = document.getElementById('productId');
+    const productNameInput = document.getElementById('productName');
+    const productCategorySelect = document.getElementById('productCategory');
+    const productUnitSelect = document.getElementById('productUnit'); // العنصر الجديد
+    const productQuantityInput = document.getElementById('productQuantity');
+    const sellingPriceInput = document.getElementById('sellingPrice');
+    const productDescriptionTextarea = document.getElementById('productDescription');
+    const productsTableBody = document.querySelector('#productsTable tbody');
+    const productsLoadingMessage = document.getElementById('productsLoading');
+    const cancelEditButton = document.getElementById('cancelEdit');
+
+    let editingProductId = null; // لتتبع المنتج الذي يتم تعديله
+
+    // وظيفة إضافة/تعديل المنتجات (Form Submission)
+    productForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const productData = {
+            name: productNameInput.value,
+            category: productCategorySelect.value,
+            unit: productUnitSelect.value, // إضافة الوحدة
+            quantity: parseInt(productQuantityInput.value),
+            sellingPrice: parseFloat(sellingPriceInput.value),
+            description: productDescriptionTextarea.value || ''
+        };
+
+        try {
+            if (editingProductId) {
+                // تعديل منتج موجود
+                const productRef = doc(db, "products", editingProductId);
+                await updateDoc(productRef, productData);
+                alert("تم تعديل المنتج بنجاح!");
+            } else {
+                // إضافة منتج جديد
+                await addDoc(collection(db, "products"), productData);
+                alert("تم إضافة المنتج بنجاح!");
+            }
+            productForm.reset(); // مسح النموذج
+            editingProductId = null; // إعادة تعيين وضع التعديل
+            cancelEditButton.style.display = 'none'; // إخفاء زر الإلغاء
+            productForm.querySelector('button[type="submit"]').textContent = 'حفظ المنتج'; // إعادة نص الزر
+            loadProducts(); // إعادة تحميل المنتجات في الجدول
+        } catch (error) {
+            console.error("خطأ في حفظ المنتج:", error);
+            alert("حدث خطأ أثناء حفظ المنتج. يرجى المحاولة مرة أخرى.");
+        }
+    });
+
+    // وظيفة تحميل المنتجات من Firebase وعرضها في الجدول
+    async function loadProducts() {
+        productsLoadingMessage.style.display = 'block'; // إظهار رسالة التحميل
+        productsTableBody.innerHTML = ''; // مسح أي بيانات سابقة
+        try {
+            const productsCol = collection(db, 'products');
+            const productSnapshot = await getDocs(productsCol);
+            const productList = productSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+            if (productList.length === 0) {
+                productsTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--light-text);">لا توجد منتجات حتى الآن.</td></tr>';
+            } else {
+                productList.forEach(product => {
+                    const row = productsTableBody.insertRow();
+                    row.innerHTML = `
+                        <td>${product.name}</td>
+                        <td>${product.category}</td>
+                        <td>${product.quantity}</td>
+                        <td>${product.unit || 'N/A'}</td> <td>${product.sellingPrice.toFixed(2)}</td>
+                        <td class="action-buttons">
+                            <button class="edit-btn" data-id="${product.id}">تعديل</button>
+                            <button class="delete-btn" data-id="${product.id}">حذف</button>
+                        </td>
+                    `;
+                });
+            }
+        } catch (error) {
+            console.error("خطأ في تحميل المنتجات:", error);
+            productsTableBody.innerHTML = '<tr><td colspan="6" style="color: var(--danger-color); text-align: center;">حدث خطأ أثناء تحميل المنتجات.</td></tr>';
+        } finally {
+            productsLoadingMessage.style.display = 'none'; // إخفاء رسالة التحميل
+        }
+    }
+
+    // معالج النقر على أزرار التعديل والحذف في الجدول
+    productsTableBody.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('edit-btn')) {
+            const productId = e.target.dataset.id;
+            await populateFormForEdit(productId);
+        } else if (e.target.classList.contains('delete-btn')) {
+            const productId = e.target.dataset.id;
+            if (confirm('هل أنت متأكد من رغبتك في حذف هذا المنتج؟')) {
+                await deleteProduct(productId);
+            }
+        }
+    });
+
+    // وظيفة ملء النموذج ببيانات المنتج للتعديل
+    async function populateFormForEdit(productId) {
+        try {
+            const productRef = doc(db, "products", productId);
+            const productSnap = await getDoc(productRef);
+            if (productSnap.exists()) {
+                const product = productSnap.data();
+                productIdInput.value = productId;
+                productNameInput.value = product.name;
+                productCategorySelect.value = product.category;
+                productUnitSelect.value = product.unit || ''; // ملء حقل الوحدة
+                productQuantityInput.value = product.quantity;
+                sellingPriceInput.value = product.sellingPrice;
+                productDescriptionTextarea.value = product.description;
+
+                editingProductId = productId;
+                productForm.querySelector('button[type="submit"]').textContent = 'تحديث المنتج';
+                cancelEditButton.style.display = 'inline-block'; // إظهار زر الإلغاء
+
+                // قم بالتمرير إلى أعلى النموذج لجعل عملية التعديل مرئية
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            } else {
+                alert("المنتج غير موجود.");
+                console.error("No such document!");
+            }
+        } catch (error) {
+            console.error("خطأ في جلب بيانات المنتج للتعديل:", error);
+            alert("حدث خطأ أثناء جلب بيانات المنتج.");
+        }
+    }
+
+    // وظيفة إلغاء التعديل
+    cancelEditButton.addEventListener('click', () => {
+        productForm.reset();
+        editingProductId = null;
+        cancelEditButton.style.display = 'none';
+        productForm.querySelector('button[type="submit"]').textContent = 'حفظ المنتج';
+    });
+
+    // وظيفة حذف المنتج
+    async function deleteProduct(productId) {
+        try {
+            await deleteDoc(doc(db, "products", productId));
+            alert("تم حذف المنتج بنجاح!");
+            loadProducts(); // إعادة تحميل المنتجات
+        } catch (error) {
+            console.error("خطأ في حذف المنتج:", error);
+            alert("حدث خطأ أثناء حذف المنتج. يرجى المحاولة مرة أخرى.");
+        }
+    }
+
+    // استدعاء loadProducts عند تحميل هذا السكربت (عندما يتم تحميل الصفحة ديناميكياً)
+    loadProducts();
+</script>
