@@ -3,217 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الدخول - شيخ العرب</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi+Ink&display=swap" rel="stylesheet">
-
-    <style>
-        body {
-            font-family: 'Cairo', sans-serif;
-            background-color: #e0f2f7;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            direction: rtl;
-            text-align: center;
-            overflow: hidden;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .app-title {
-            font-family: 'Reem Kufi Ink', serif;
-            font-size: 60px;
-            color: #2e7d32;
-            margin-bottom: 20px;
-            font-weight: 700;
-            letter-spacing: 3px;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
-            animation: fadeInDown 1s ease-out;
-        }
-
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-50px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        h2 {
-            color: #444;
-            margin-bottom: 40px;
-            font-size: 36px;
-            font-weight: 700;
-            animation: fadeIn 1.2s ease-out 0.2s forwards;
-            opacity: 0;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        form {
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 450px;
-            animation: zoomIn 1s ease-out 0.4s forwards;
-            opacity: 0;
-            text-align: right;
-            box-sizing: border-box;
-        }
-
-        @keyframes zoomIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .input-group {
-            margin-bottom: 25px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 10px;
-            color: #555;
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .input-group input[type="email"],
-        .input-group input[type="password"] {
-            font-family: 'Cairo', sans-serif;
-            width: calc(100% - 28px);
-            padding: 15px 14px;
-            border: 1px solid #a8dadc;
-            border-radius: 10px;
-            font-size: 18px;
-            box-sizing: border-box;
-            transition: all 0.3s ease;
-            background-color: #f1faee;
-        }
-
-        .input-group input[type="email"]:focus,
-        .input-group input[type="password"]:focus {
-            border-color: #1d7b87;
-            outline: none;
-            box-shadow: 0 0 0 5px rgba(29, 123, 135, 0.2);
-            background-color: #ffffff;
-        }
-
-        button[type="submit"] {
-            font-family: 'Cairo', sans-serif;
-            background-color: #4CAF50;
-            color: white;
-            padding: 16px 30px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 20px;
-            font-weight: 700;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-            width: 100%;
-            margin-top: 30px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        button[type="submit"]:hover {
-            background-color: #45a049;
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-        }
-
-        button[type="submit"]:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-        }
-
-        .error-message {
-            color: #d32f2f;
-            margin-top: 25px;
-            font-size: 17px;
-            font-weight: 500;
-            line-height: 1.5;
-            text-align: center;
-        }
-    </style>
+    <title>نظام إدارة محل عطارة "شيخ العرب"</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Reem+Kufi+Ink&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1 class="app-title">شيخ العرب</h1>
-    <h2>نظام إدارة محل العطارة</h2>
-    <form id="loginForm">
-        <div class="input-group">
-            <label for="email">البريد الإلكتروني:</label>
-            <input type="email" id="email" required>
-        </div>
-        <div class="input-group">
-            <label for="password">كلمة المرور:</label>
-            <input type="password" id="password" required>
-        </div>
-        <button type="submit">تسجيل الدخول</button>
-        <p id="errorMessage" class="error-message"></p>
-    </form>
+    <div id="app">
+        <aside id="sidebar">
+            <div class="logo">
+                <h1>شيخ العرب</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#" data-section="dashboard"><i class="fas fa-home"></i> الرئيسية</a></li>
+                    <li><a href="#" data-section="inventory"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>
+                    <li><a href="#" data-section="pos"><i class="fas fa-cash-register"></i> نقطة البيع</a></li>
+                    <li><a href="#" data-section="customers"><i class="fas fa-users"></i> العملاء والديون</a></li>
+                    <li><a href="#" data-section="reports"><i class="fas fa-chart-line"></i> التقارير</a></li>
+                    <li><a href="#" data-section="settings"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                    <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a></li>
+                </ul>
+            </nav>
+        </aside>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+        <main id="main-content">
+            <header>
+                <h2>لوحة التحكم</h2>
+                <div class="user-info">
+                    <span>مرحباً، <span id="current-user-name"></span></span>
+                </div>
+            </header>
 
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyC5ls-rPdJ65x5BoMGwAOpdcPtD585C2ys",
-            authDomain: "pharmacy-inventory-bf04a.firebaseapp.com",
-            projectId: "pharmacy-inventory-bf04a",
-            storageBucket: "pharmacy-inventory-bf04a.firebasestorage.app",
-            messagingSenderId: "937788650384",
-            appId: "1:937788650384:web:6451225d00e648f3a0b915",
-            measurementId: "G-ZGC9EQ55SL"
-        };
+            <section id="dashboard" class="content-section active">
+                <h3>نظرة عامة على الأداء</h3>
+                <div class="summary-cards">
+                    <div class="card">
+                        <h4>إجمالي مبيعات اليوم</h4>
+                        <p>5,000 ج.م</p>
+                    </div>
+                    <div class="card">
+                        <h4>إجمالي ديون العملاء</h4>
+                        <p>1,200 ج.م</p>
+                    </div>
+                    <div class="card">
+                        <h4>منتجات على وشك النفاذ</h4>
+                        <p>5 منتجات</p>
+                    </div>
+                </div>
+            </section>
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+            <section id="inventory" class="content-section">
+                <h3>إدارة المخزون</h3>
+                <button class="add-new-btn"><i class="fas fa-plus"></i> إضافة منتج جديد</button>
+                <div class="products-list">
+                    </div>
+            </section>
 
-        const loginForm = document.getElementById('loginForm');
-        const errorMessage = document.getElementById('errorMessage');
+            <section id="pos" class="content-section">
+                <h3>نقطة البيع</h3>
+                </section>
 
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+            <section id="customers" class="content-section">
+                <h3>العملاء والديون</h3>
+                </section>
 
-            const email = loginForm.email.value;
-            const password = loginForm.password.value;
+            <section id="reports" class="content-section">
+                <h3>التقارير</h3>
+                </section>
 
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                console.log("تم تسجيل الدخول بنجاح!");
-                errorMessage.textContent = '';
-                window.location.href = 'dashboard.html';
-            } catch (error) {
-                let message = 'حدث خطأ غير متوقع. الرجاء المحاولة مرة أخرى.';
-                switch (error.code) {
-                    case 'auth/user-not-found':
-                        message = 'لا يوجد مستخدم بهذا البريد الإلكتروني.';
-                        break;
-                    case 'auth/wrong-password':
-                        message = 'كلمة المرور خاطئة.';
-                        break;
-                    case 'auth/invalid-email':
-                        message = 'صيغة البريد الإلكتروني غير صحيحة.';
-                        break;
-                    case 'auth/network-request-failed':
-                        message = 'لا يوجد اتصال بالإنترنت. يرجى التحقق من اتصالك.';
-                        break;
-                    default:
-                        message = 'حدث خطأ في تسجيل الدخول: ' + error.message;
-                        break;
-                }
-                errorMessage.textContent = message;
-                console.error("خطأ في تسجيل الدخول:", error.message);
-            }
-        });
-    </script>
+            <section id="settings" class="content-section">
+                <h3>إعدادات النظام</h3>
+                </section>
+
+            <section id="auth-section" class="content-section active">
+                <h3>تسجيل الدخول</h3>
+                <form id="login-form">
+                    <input type="email" id="login-email" placeholder="البريد الإلكتروني" required>
+                    <input type="password" id="login-password" placeholder="كلمة المرور" required>
+                    <button type="submit">تسجيل الدخول</button>
+                    <p id="auth-error" class="error-message"></p>
+                </form>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script type="module" src="./firebase-config.js"></script>
+    <script type="module" src="./script.js"></script>
 </body>
 </html>
