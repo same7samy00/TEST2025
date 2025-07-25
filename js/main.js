@@ -22,38 +22,45 @@ const reportsLink = document.getElementById('reports-link');
 // --- 1. Authentication Logic (منطق تسجيل الدخول/الخروج) ---
 onAuthStateChanged(auth, (user) => {
     if (user) {
+        // المستخدم مسجل الدخول
         authStatusDiv.classList.remove('alert-info', 'alert-danger');
         authStatusDiv.classList.add('alert-success');
         authStatusDiv.textContent = `مرحباً، ${user.email}! أنت مسجل الدخول.`;
-        loginLink.classList.add('d-none');
-        logoutLink.classList.remove('d-none');
-        loadDashboard(); 
+        loginLink.classList.add('d-none'); // إخفاء رابط تسجيل الدخول
+        logoutLink.classList.remove('d-none'); // إظهار رابط تسجيل الخروج
+        loadDashboard(); // تحميل لوحة التحكم الافتراضية بعد تسجيل الدخول
     } else {
+        // المستخدم غير مسجل الدخول
         authStatusDiv.classList.remove('alert-success');
         authStatusDiv.classList.add('alert-info');
         authStatusDiv.textContent = 'يرجى تسجيل الدخول.';
-        loginLink.classList.remove('d-none');
-        logoutLink.classList.add('d-none');
-        showLoginForm(); 
+        loginLink.classList.remove('d-none'); // إظهار رابط تسجيل الدخول
+        logoutLink.classList.add('d-none'); // إخفاء رابط تسجيل الخروج
+        showLoginForm(); // عرض نموذج تسجيل الدخول
     }
 });
 
+// عند النقر على رابط تسجيل الدخول في الناف بار
 loginLink.addEventListener('click', (e) => {
     e.preventDefault();
     showLoginForm();
 });
 
+// عند النقر على رابط تسجيل الخروج في الناف بار
 logoutLink.addEventListener('click', async (e) => {
     e.preventDefault();
     try {
-        await signOut(auth);
+        await signOut(auth); // تسجيل الخروج من Firebase
         console.log("User signed out successfully.");
-    }东北季候风,
-    console.error("Error signing out:", error.message);
-    alert(`خطأ في تسجيل الخروج: ${error.message}`);
+        // onAuthStateChanged سيقوم بتحديث الواجهة تلقائياً
+    } catch (error) {
+        console.error("Error signing out:", error.message);
+        alert(`خطأ في تسجيل الخروج: ${error.message}`);
     }
 });
 
+// ** بداية محتوى صفحة "تسجيل الدخول" **
+// دالة لعرض نموذج تسجيل الدخول
 function showLoginForm() {
     contentArea.innerHTML = `
         <div class="card p-4 mx-auto" style="max-width: 400px;">
@@ -71,12 +78,13 @@ function showLoginForm() {
         </div>
     `;
 
+    // إضافة مستمع الحدث لزر تسجيل الدخول
     document.getElementById('loginBtn').addEventListener('click', async () => {
         const email = document.getElementById('emailInput').value;
         const password = document.getElementById('passwordInput').value;
         const loginErrorDiv = document.getElementById('loginError');
 
-        loginErrorDiv.classList.add('d-none');
+        loginErrorDiv.classList.add('d-none'); // إخفاء أي أخطاء سابقة
 
         if (!email || !password) {
             loginErrorDiv.textContent = 'البريد الإلكتروني وكلمة المرور مطلوبان.';
@@ -85,7 +93,8 @@ function showLoginForm() {
         }
 
         try {
-            await signInWithEmailAndPassword(auth, email, password);
+            await signInWithEmailAndPassword(auth, email, password); // محاولة تسجيل الدخول
+            // onAuthStateChanged سيقوم بتحديث الواجهة إذا نجح تسجيل الدخول
         } catch (error) {
             let errorMessage = "حدث خطأ غير معروف.";
             switch (error.code) {
@@ -108,19 +117,21 @@ function showLoginForm() {
         }
     });
 }
+// ** نهاية محتوى صفحة "تسجيل الدخول" **
 
 
 // --- 2. Dashboard / Default Content (لوحة التحكم الرئيسية) ---
 dashboardLink.addEventListener('click', (e) => {
     e.preventDefault();
-    if (auth.currentUser) { 
+    if (auth.currentUser) { // فقط إذا كان المستخدم مسجل الدخول
         loadDashboard();
     } else {
         alert('يرجى تسجيل الدخول لعرض لوحة التحكم.');
-        showLoginForm();
+        showLoginForm(); // أو إعادة توجيه لصفحة تسجيل الدخول
     }
 });
 
+// ** بداية محتوى صفحة "لوحة التحكم الرئيسية" **
 function loadDashboard() {
     contentArea.innerHTML = `
         <h2 class="text-center">لوحة التحكم</h2>
@@ -149,13 +160,16 @@ function loadDashboard() {
             </div>
         </div>
     `;
+    // إضافة مستمعي الأحداث لأزرار الوصول السريع
     document.getElementById('quick-products-link').addEventListener('click', () => loadProductsContent());
     document.getElementById('quick-sales-link').addEventListener('click', () => loadSalesContent());
     document.getElementById('quick-customers-link').addEventListener('click', () => loadCustomersContent());
 }
+// ** نهاية محتوى صفحة "لوحة التحكم الرئيسية" **
 
 
 // --- 3. Product Management (إدارة المنتجات - CRUD Operations with Firestore) ---
+// هذا الجزء يتعامل مع عرض، إضافة، تعديل، وحذف المنتجات
 productsLink.addEventListener('click', (e) => {
     e.preventDefault();
     if (auth.currentUser) {
@@ -166,6 +180,7 @@ productsLink.addEventListener('click', (e) => {
     }
 });
 
+// ** بداية محتوى صفحة "قائمة المنتجات" **
 async function loadProductsContent() {
     contentArea.innerHTML = `
         <h2 class="text-center mb-4">إدارة المنتجات</h2>
@@ -194,12 +209,12 @@ async function loadProductsContent() {
 
 async function fetchProducts() {
     const productsTableBody = document.getElementById('productsTableBody');
-    productsTableBody.innerHTML = ''; 
+    productsTableBody.innerHTML = ''; // مسح المحتوى السابق
 
     try {
-        const productsRef = collection(db, "products");
-        const q = query(productsRef, orderBy("name", "asc"));
-        const snapshot = await getDocs(q);
+        const productsRef = collection(db, "products"); // جلب مجموعة المنتجات من Firestore
+        const q = query(productsRef, orderBy("name", "asc")); // ترتيب المنتجات حسب الاسم
+        const snapshot = await getDocs(q); // تنفيذ الاستعلام وجلب المستندات
 
         if (snapshot.empty) {
             productsTableBody.innerHTML = '<tr><td colspan="5" class="text-center">لا يوجد منتجات مسجلة.</td></tr>';
@@ -208,15 +223,16 @@ async function fetchProducts() {
 
         snapshot.forEach(async (productDoc) => {
             const product = productDoc.data();
-            const productId = productDoc.id;
+            const productId = productDoc.id; // معرف المستند من Firestore
 
+            // حساب الكمية الإجمالية من الدفعات
             let totalQuantity = 0;
-            const batchesRef = collection(db, `products/${productId}/batches`);
+            // Fetch batches for each product
+            const batchesRef = collection(db, `products/${productId}/batches`); // الدفعات كمجموعة فرعية
             const batchesSnapshot = await getDocs(batchesRef);
             batchesSnapshot.forEach(batchDoc => {
                 totalQuantity += batchDoc.data().quantity || 0;
             });
-
 
             productsTableBody.innerHTML += `
                 <tr>
@@ -233,6 +249,7 @@ async function fetchProducts() {
             `;
         });
 
+        // إضافة مستمعي الأحداث للأزرار التي تم إنشاؤها حديثاً (مهم جداً!)
         document.querySelectorAll('.edit-product-btn').forEach(button => {
             button.addEventListener('click', (e) => showEditProductForm(e.target.dataset.id || e.target.closest('button').dataset.id));
         });
@@ -248,7 +265,11 @@ async function fetchProducts() {
         productsTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">حدث خطأ في جلب المنتجات. تأكد من إعداد قواعد أمان Firestore بشكل صحيح.</td></tr>';
     }
 }
+// ** نهاية محتوى صفحة "قائمة المنتجات" **
 
+
+// ** بداية محتوى صفحة "نموذج إضافة/تعديل منتج" **
+// عرض نموذج إضافة منتج جديد
 function showAddProductForm() {
     contentArea.innerHTML = `
         <h2 class="text-center mb-4">إضافة منتج جديد</h2>
@@ -291,8 +312,9 @@ function showAddProductForm() {
     document.getElementById('cancelProductBtn').addEventListener('click', loadProductsContent);
 }
 
+// حفظ منتج جديد أو تحديث منتج موجود
 async function saveProduct() {
-    const productId = document.getElementById('productId') ? document.getElementById('productId').value : null;
+    const productId = document.getElementById('productId') ? document.getElementById('productId').value : null; 
     const productName = document.getElementById('productName').value;
     const productBarcode = document.getElementById('productBarcode').value;
     const productPrice = parseFloat(document.getElementById('productPrice').value);
