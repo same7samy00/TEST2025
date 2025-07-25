@@ -18,8 +18,8 @@
             <p id="lowStockProducts">جاري التحميل...</p>
         </div>
         <div class="card">
-            <h3>عملاء جدد</h3>
-            <p id="newCustomers">جاري التحميل...</p>
+            <h3>ديون العملاء الإجمالية</h3>
+            <p id="totalCustomerDebt">جاري التحميل...</p>
         </div>
     </section>
 
@@ -65,16 +65,14 @@
 </div>
 
 <script type="module">
-    // بما أننا داخل ملف يتم تحميله ديناميكياً، سنستخدم window.firebaseApp الذي تم تعريفه في dashboard.html
-    import { getFirestore, collection, getDocs, query, where, Timestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, where, Timestamp, sum } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
-    const db = getFirestore(window.firebaseApp); // استخدام تطبيق Firebase العام
+    const db = getFirestore(window.firebaseApp);
 
-    // عناصر البطاقات
     const totalProductsElement = document.getElementById('totalProducts');
     const dailySalesElement = document.getElementById('dailySales');
     const lowStockProductsElement = document.getElementById('lowStockProducts');
-    const newCustomersElement = document.getElementById('newCustomers');
+    const totalCustomerDebtElement = document.getElementById('totalCustomerDebt');
 
     async function fetchDashboardData() {
         // إجمالي المنتجات
@@ -96,16 +94,13 @@
             lowStockProductsElement.textContent = 'خطأ!';
         }
 
-        // مبيعات اليوم (بناءً على تاريخ اليوم)
-        // يجب أن يحتوي كل مستند بيع في مجموعة 'sales' على حقل 'timestamp' نوعه Firestore Timestamp
+        // مبيعات اليوم
         const today = new Date();
-        // لضبط الوقت بداية اليوم بتوقيت القاهرة
-        const timezoneOffset = today.getTimezoneOffset() * 60000; // Offset in milliseconds
-        const localDate = new Date(today.getTime() - timezoneOffset); // Convert to local time
+        const timezoneOffset = today.getTimezoneOffset() * 60000;
+        const localDate = new Date(today.getTime() - timezoneOffset);
         const startOfDay = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate(), 0, 0, 0);
         const endOfDay = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate(), 23, 59, 59);
 
-        // تحويل توقيتات البداية والنهاية إلى Firestore Timestamps
         const startOfDayTimestamp = Timestamp.fromDate(startOfDay);
         const endOfDayTimestamp = Timestamp.fromDate(endOfDay);
 
@@ -113,7 +108,7 @@
             const salesQuery = query(
                 collection(db, 'sales'),
                 where('timestamp', '>=', startOfDayTimestamp),
-                where('timestamp', '<=', endOfDayTimestamp) // Changed to <= for end of day
+                where('timestamp', '<=', endOfDayTimestamp)
             );
             const salesSnapshot = await getDocs(salesQuery);
             let totalSalesAmount = 0;
@@ -129,17 +124,22 @@
             dailySalesElement.textContent = 'خطأ!';
         }
 
-        // عملاء جدد (سنفترض حاليًا إجمالي عدد العملاء)
-        // هذا يتطلب مجموعة 'customers' في Firestore
+        // ديون العملاء الإجمالية
         try {
             const customersSnapshot = await getDocs(collection(db, 'customers'));
-            newCustomersElement.textContent = `${customersSnapshot.size} عملاء`;
+            let totalDebt = 0;
+            customersSnapshot.forEach(doc => {
+                const customer = doc.data();
+                if (customer.outstandingBalance) {
+                    totalDebt += customer.outstandingBalance;
+                }
+            });
+            totalCustomerDebtElement.textContent = `${totalDebt.toFixed(2)} جنيه`;
         } catch (error) {
-            console.error("خطأ في جلب العملاء الجدد:", error);
-            newCustomersElement.textContent = 'خطأ!';
+            console.error("خطأ في جلب ديون العملاء:", error);
+            totalCustomerDebtElement.textContent = 'خطأ!';
         }
     }
 
-    // استدعاء دالة جلب البيانات عند تحميل الصفحة
     fetchDashboardData();
 </script>
